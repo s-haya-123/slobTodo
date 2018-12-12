@@ -28,15 +28,18 @@
             <CheckBox
                 android:id="@+id/checkBox"
                 android:layout_width="84dp"
-                android:layout_height="53dp"
+                android:layout_height="66dp"
                 android:layout_weight="1" />
 
             <EditText
-                android:id="@+id/textView"
+                android:id="@+id/input_text"
                 android:layout_width="match_parent"
-                android:layout_height="63dp"
-                android:layout_weight="1"
-                android:text="TextView" />
+                android:layout_height="77dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:layout_weight="1">
+                    <requestFocus/>
+            </EditText>
         </LinearLayout>
 
     </LinearLayout>
