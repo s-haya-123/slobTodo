@@ -7,7 +7,7 @@
     tools:layout_editor_absoluteY="25dp">
 
     <LinearLayout
-        android:id="@+id/list"
+        android:id="@+id/input_list"
         android:layout_width="395dp"
         android:layout_height="match_parent"
         android:layout_marginStart="8dp"
@@ -20,28 +20,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
 
-        <LinearLayout
+
+        <include
+            layout="@layout/input_line"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <CheckBox
-                android:id="@+id/checkBox"
-                android:layout_width="84dp"
-                android:layout_height="66dp"
-                android:layout_weight="1" />
-
-            <EditText
-                android:id="@+id/input_text"
-                android:layout_width="match_parent"
-                android:layout_height="77dp"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:layout_weight="1">
-                    <requestFocus/>
-            </EditText>
-        </LinearLayout>
-
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
