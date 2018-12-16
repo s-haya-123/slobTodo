@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.content_main)
-//        setSupportActionBar(toolbar)
 
         if(savedInstanceState == null){
             val fragmentManager:FragmentManager = this.supportFragmentManager
