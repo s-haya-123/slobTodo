@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.content_main)
         setSupportActionBar(toolbar_input)
+        setTitle("")
 
         if(savedInstanceState == null){
             val fragmentManager:FragmentManager = this.supportFragmentManager
@@ -56,9 +57,11 @@ class MainActivity : AppCompatActivity() {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
     }
+
 }

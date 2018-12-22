@@ -1,6 +1,7 @@
 package overlay.camera.com.slobtodo
 
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.util.Log
@@ -14,6 +15,7 @@ import kotlinx.android.synthetic.main.input_line.*
 import kotlinx.android.synthetic.main.input_line.view.*
 
 class InputScheduleFlagment: Fragment() {
+    private var isAlarmOn:Boolean = true
     private val enterEvent = object:View.OnKeyListener{
         override fun onKey(v:View,keyCode:Int,event:KeyEvent): Boolean {
             if(keyCode == KeyEvent.KEYCODE_ENTER){
@@ -55,9 +57,42 @@ class InputScheduleFlagment: Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, menuInflater: MenuInflater?) {
-        super.onCreateOptionsMenu(menu, menuInflater);
-        if(menuInflater != null){
-            menuInflater.inflate(R.menu.menu_main, menu)
+        super.onCreateOptionsMenu(menu, menuInflater)
+        if(menuInflater != null && menu != null){
+            menuInflater.inflate(R.menu.input, menu)
+
+            when(this.isAlarmOn){
+                true -> {
+                    menu.findItem(R.id.action_favorite).isVisible = true
+                    menu.findItem(R.id.action_notactive).isVisible = false
+                }
+                false -> {
+                    menu.findItem(R.id.action_favorite).isVisible = false
+                    menu.findItem(R.id.action_notactive).isVisible = true
+                }
+            }
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item != null){
+            return when (item.itemId) {
+                R.id.action_settings -> true
+                R.id.action_favorite ->{
+                    this.isAlarmOn = false
+                    activity!!.fragmentManager.invalidateOptionsMenu()
+                    true
+                }
+                R.id.action_notactive ->{
+                    this.isAlarmOn = true
+                    activity!!.fragmentManager.invalidateOptionsMenu()
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
+    }
+
 }
