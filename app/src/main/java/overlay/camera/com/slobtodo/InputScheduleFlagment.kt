@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.util.Log
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -27,6 +24,7 @@ class InputScheduleFlagment: Fragment() {
         }
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.input_layout, container, false)
     }
 
@@ -53,6 +51,13 @@ class InputScheduleFlagment: Fragment() {
         fun newInstance(): InputScheduleFlagment {
             val fragment = InputScheduleFlagment()
             return fragment
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, menuInflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, menuInflater);
+        if(menuInflater != null){
+            menuInflater.inflate(R.menu.menu_main, menu)
         }
     }
 }
