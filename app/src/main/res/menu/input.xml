@@ -7,7 +7,7 @@
     <!-- "Mark Favorite", should appear as action button if possible -->
     <item
         android:id="@+id/action_notactive"
-        android:icon="@drawable/ic_notifications_off_black_24dp"
+        android:icon="@drawable/ic_notifications_off_black_28dp"
         android:title="Cast"
         android:visible="true"
         app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"

@@ -1,6 +1,7 @@
 package overlay.camera.com.slobtodo
 
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -10,9 +11,13 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.input_layout.*
 import kotlinx.android.synthetic.main.input_line.*
 import kotlinx.android.synthetic.main.input_line.view.*
+import android.view.KeyEvent.KEYCODE_BACK
+import android.widget.Button
+
 
 class InputScheduleFlagment: Fragment() {
     private var isAlarmOn:Boolean = true
@@ -27,7 +32,17 @@ class InputScheduleFlagment: Fragment() {
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
-        return inflater.inflate(R.layout.input_layout, container, false)
+        val v = inflater.inflate(R.layout.input_layout, container, false)
+        v.isFocusableInTouchMode = true
+        v.setOnKeyListener(object : View.OnKeyListener {
+            override fun onKey(v:View,keyCode:Int,event:KeyEvent): Boolean  {
+                return if (keyCode == KeyEvent.KEYCODE_BACK && event.action === KeyEvent.ACTION_UP) {
+                    if (view != null) view!!.findViewById<FloatingActionButton>(R.id.fab).show()
+                    true
+                } else false
+            }
+        })
+        return v
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,13 +55,6 @@ class InputScheduleFlagment: Fragment() {
         view.input_text.setOnKeyListener(enterEvent)
         input_list.addView(view)
         return
-    }
-    private fun enterkeyLister(v:View,keyCode:Int,event:KeyEvent):Boolean{
-        if(keyCode == KeyEvent.KEYCODE_ENTER){
-            createInpputLine()
-            return true
-        }
-        return false
     }
 
     companion object {

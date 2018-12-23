@@ -25,26 +25,11 @@ class MainActivity : AppCompatActivity() {
         if(savedInstanceState == null){
             val fragmentManager:FragmentManager = this.supportFragmentManager
             val fragmentTransaction:FragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.addToBackStack(null);
 
             fragmentTransaction.add(R.id.content_fragment,ScheduleListFlagment.newInstance())
             fragmentTransaction.commit()
         }
-        fab.setOnClickListener { view ->
-            if(savedInstanceState == null){
-                val fragmentManager:FragmentManager = this.supportFragmentManager
-                val fragmentTransaction:FragmentTransaction = fragmentManager.beginTransaction()
-                fragmentTransaction.addToBackStack(null);
 
-                fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance())
-                fragmentTransaction.commit()
-
-                val manage:InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                manage.toggleSoftInput(1, InputMethodManager.SHOW_IMPLICIT)
-                fab.hide()
-            }
-
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
