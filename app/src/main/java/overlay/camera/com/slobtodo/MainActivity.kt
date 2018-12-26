@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
-
+    var inputDataList:Array<InputData> = arrayOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.content_main)
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
             val fragmentManager:FragmentManager = this.supportFragmentManager
             val fragmentTransaction:FragmentTransaction = fragmentManager.beginTransaction()
 
-            fragmentTransaction.add(R.id.content_fragment,ScheduleListFlagment.newInstance())
+            fragmentTransaction.add(R.id.content_fragment,ScheduleListFlagment.newInstance(),"ScheduleFlagment")
             fragmentTransaction.commit()
         }
 

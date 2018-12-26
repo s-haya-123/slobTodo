@@ -9,9 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.input_line.*
 
 class ScheduleListFlagment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -31,14 +29,15 @@ class ScheduleListFlagment: Fragment() {
             if(savedInstanceState == null){
                 val fragmentManager: FragmentManager = activity!!.supportFragmentManager
                 val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-                fragmentTransaction.addToBackStack(null);
 
-                fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance())
+//                val inputData = InputData()
+//                inputData.lineDataArray += InputData.LineData(false,"test")
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(null),"inputFlagment")
                 fragmentTransaction.commit()
 
                 val manage: InputMethodManager = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 manage.toggleSoftInput(1, InputMethodManager.SHOW_IMPLICIT)
-                fab.hide()
             }
         }
     }

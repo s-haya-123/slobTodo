@@ -1,68 +1,66 @@
 package overlay.camera.com.slobtodo
 
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.LinearLayout
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.input_layout.*
-import kotlinx.android.synthetic.main.input_line.*
 import kotlinx.android.synthetic.main.input_line.view.*
-import android.view.KeyEvent.KEYCODE_BACK
-import android.widget.Button
-
 
 class InputScheduleFlagment: Fragment() {
+    val ARG:String = "INPUT_DATA"
+    var data:InputData = InputData()
     private var isAlarmOn:Boolean = true
-    private val enterEvent = object:View.OnKeyListener{
-        override fun onKey(v:View,keyCode:Int,event:KeyEvent): Boolean {
-            if(keyCode == KeyEvent.KEYCODE_ENTER){
-                createInpputLine()
-                return true
-            }
-            return false
-        }
-    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
-        val v = inflater.inflate(R.layout.input_layout, container, false)
-        v.isFocusableInTouchMode = true
-        v.setOnKeyListener(object : View.OnKeyListener {
-            override fun onKey(v:View,keyCode:Int,event:KeyEvent): Boolean  {
-                return if (keyCode == KeyEvent.KEYCODE_BACK && event.action === KeyEvent.ACTION_UP) {
-                    if (view != null) view!!.findViewById<FloatingActionButton>(R.id.fab).show()
-                    true
-                } else false
-            }
-        })
-        return v
+        return inflater.inflate(R.layout.input_layout, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        input_text.setOnKeyListener(enterEvent)
-    }
-    private fun createInpputLine(){
-        val view:View = layoutInflater.inflate(R.layout.input_line, null)
-
-        view.input_text.setOnKeyListener(enterEvent)
-        input_list.addView(view)
-        return
-    }
-
-    companion object {
-        fun newInstance(): InputScheduleFlagment {
-            val fragment = InputScheduleFlagment()
-            return fragment
+        arguments?.let {
+            val inputData = it.getSerializable(InputScheduleFlagment.ARG) as InputData?
+            setInputDataOnInputLine(inputData)
+            inputData?.let { this.data = it }
         }
+        createInputLine()
+
     }
+
+    private fun createInputLine():View{
+        val view:View = layoutInflater.inflate(R.layout.input_line, null)
+        input_list.addView(view)
+        setEventOnEditText(view.input_text)
+        return view
+    }
+    private fun setEventOnEditText(text:EditText):Unit{
+        var lineData = InputData.LineData(false,"")
+        text.setOnKeyListener { v, keyCode, event ->
+            if(keyCode == KeyEvent.KEYCODE_ENTER){
+                createInputLine()
+                true
+            }
+            false
+        }
+        text.addTextChangedListener(object :TextWatcher{
+            override fun beforeTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
+            }
+
+            override fun onTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
+                lineData.todo = s.toString()
+//                Log.d("textChange",lineData.todo)
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+        })
+        this.data.lineDataArray += lineData
+    }
+
 
     override fun onCreateOptionsMenu(menu: Menu?, menuInflater: MenuInflater?) {
         super.onCreateOptionsMenu(menu, menuInflater)
@@ -102,5 +100,21 @@ class InputScheduleFlagment: Fragment() {
             return super.onOptionsItemSelected(item)
         }
     }
+    private fun setInputDataOnInputLine(inputData: InputData?):Unit{
+        inputData?.let {
+            it.lineDataArray.forEach{
+                val view = this.createInputLine()
+                view.input_text.setText(it.todo)
+            }
+        }
+    }
+    companion object {
+        val ARG:String = "INPUT_DATA"
 
+        fun newInstance(inputData: InputData?): InputScheduleFlagment = InputScheduleFlagment().apply {
+            arguments = Bundle().apply {
+                putSerializable(ARG,inputData)
+            }
+        }
+    }
 }
