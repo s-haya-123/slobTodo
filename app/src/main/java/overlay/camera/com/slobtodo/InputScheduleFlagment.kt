@@ -86,12 +86,12 @@ class InputScheduleFlagment: Fragment() {
                 R.id.action_settings -> true
                 R.id.action_favorite ->{
                     this.isAlarmOn = false
-                    activity!!.fragmentManager.invalidateOptionsMenu()
+                    activity?.apply { this.fragmentManager.invalidateOptionsMenu() }
                     true
                 }
                 R.id.action_notactive ->{
                     this.isAlarmOn = true
-                    activity!!.fragmentManager.invalidateOptionsMenu()
+                    activity?.apply { this.fragmentManager.invalidateOptionsMenu() }
                     true
                 }
                 else -> super.onOptionsItemSelected(item)

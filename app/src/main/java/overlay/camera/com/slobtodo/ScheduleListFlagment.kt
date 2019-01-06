@@ -1,19 +1,65 @@
 package overlay.camera.com.slobtodo
 
 import android.content.Context
+import android.graphics.Point
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.activity_main.*
 
 class ScheduleListFlagment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.activity_main, container, false)
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val list:View = createLinearList()
+
+        activity_main_list.addView(list)
+        fab.setOnClickListener { view ->
+            if(savedInstanceState == null){
+                changeMainFragment()
+            }
+        }
+    }
+    private fun createLinearList():View{
+        val list:LinearLayout = LinearLayout(activity)
+        list.orientation = LinearLayout.HORIZONTAL
+        list.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+        val card:View = layoutInflater.inflate(R.layout.schedule_card, null)
+        val card2:View = layoutInflater.inflate(R.layout.schedule_card, null)
+        activity?.let {
+            val p = Point()
+            it.windowManager.defaultDisplay?.getSize(p)
+            card.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
+            card2.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        list.addView(card)
+        list.addView(card2)
+        return list
+    }
+    private fun changeMainFragment(){
+        activity?.let {
+            val fragmentManager: FragmentManager = it.supportFragmentManager
+            val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+            //                val inputData = InputData()
+//                inputData.lineDataArray += InputData.LineData(false,"test")
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(null),"inputFlagment")
+            fragmentTransaction.commit()
+
+            val manage: InputMethodManager = it.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            manage.toggleSoftInput(1, InputMethodManager.SHOW_IMPLICIT)
+        }
+
+
     }
 
     companion object {
@@ -22,23 +68,5 @@ class ScheduleListFlagment: Fragment() {
             return fragment
         }
 
-    }
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        fab.setOnClickListener { view ->
-            if(savedInstanceState == null){
-                val fragmentManager: FragmentManager = activity!!.supportFragmentManager
-                val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-
-//                val inputData = InputData()
-//                inputData.lineDataArray += InputData.LineData(false,"test")
-                fragmentTransaction.addToBackStack(null);
-                fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(null),"inputFlagment")
-                fragmentTransaction.commit()
-
-                val manage: InputMethodManager = activity!!.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                manage.toggleSoftInput(1, InputMethodManager.SHOW_IMPLICIT)
-            }
-        }
     }
 }
