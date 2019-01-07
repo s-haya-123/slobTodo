@@ -25,7 +25,8 @@ class ScheduleListFlagment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val _activity = activity
         if(_activity is MainActivity){
-            _activity.inputDataList.forEach {
+            val result = _activity.inputDataList.withIndex().groupBy{ it.index / 2 }.map{ it.value.map{ it.value } }
+            result.forEach {
                 val list:View = createLinearList(it)
                 activity_main_list.addView(list)
             }
@@ -37,13 +38,14 @@ class ScheduleListFlagment: Fragment() {
         }
     }
 
-    private fun createLinearList(inputData:InputData):View{
+    private fun createLinearList(inputDataList:List<InputData>):View{
         val list:LinearLayout = LinearLayout(activity)
         list.orientation = LinearLayout.HORIZONTAL
         list.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-        activity?.let {
-            val card = createCardView(it,inputData)
-            list.addView(card)
+        activity?.apply {
+            inputDataList.forEach {
+                val card = createCardView(this,it)
+                list.addView(card) }
         }
         return list
     }
