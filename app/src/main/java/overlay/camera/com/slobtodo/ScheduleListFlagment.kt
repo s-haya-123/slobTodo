@@ -4,14 +4,17 @@ import android.content.Context
 import android.graphics.Point
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
+import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class ScheduleListFlagment: Fragment() {
@@ -20,31 +23,43 @@ class ScheduleListFlagment: Fragment() {
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val list:View = createLinearList()
-
-        activity_main_list.addView(list)
+        val _activity = activity
+        if(_activity is MainActivity){
+            _activity.inputDataList.forEach {
+                val list:View = createLinearList(it)
+                activity_main_list.addView(list)
+            }
+        }
         fab.setOnClickListener { view ->
             if(savedInstanceState == null){
                 changeMainFragment()
             }
         }
     }
-    private fun createLinearList():View{
+
+    private fun createLinearList(inputData:InputData):View{
         val list:LinearLayout = LinearLayout(activity)
         list.orientation = LinearLayout.HORIZONTAL
         list.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-        val card:View = layoutInflater.inflate(R.layout.schedule_card, null)
-        val card2:View = layoutInflater.inflate(R.layout.schedule_card, null)
         activity?.let {
-            val p = Point()
-            it.windowManager.defaultDisplay?.getSize(p)
-            card.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
-            card2.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
+            val card = createCardView(it,inputData)
+            list.addView(card)
         }
-        list.addView(card)
-        list.addView(card2)
         return list
     }
+    private fun createCardView(activity: FragmentActivity,inputData:InputData):View{
+        val card:View = layoutInflater.inflate(R.layout.schedule_card, null)
+        val p = Point()
+        activity.windowManager.defaultDisplay?.getSize(p)
+        card.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
+        inputData.lineDataArray.forEach {
+            val showLine:View = layoutInflater.inflate(R.layout.show_line, null)
+            showLine.findViewById<TextView>(R.id.show_line_text).text = it.todo
+            card.findViewById<LinearLayout>(R.id.schedule_card_linear).addView(showLine)
+        }
+        return card
+    }
+
     private fun changeMainFragment(){
         activity?.let {
             val fragmentManager: FragmentManager = it.supportFragmentManager
@@ -58,8 +73,6 @@ class ScheduleListFlagment: Fragment() {
             val manage: InputMethodManager = it.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             manage.toggleSoftInput(1, InputMethodManager.SHOW_IMPLICIT)
         }
-
-
     }
 
     companion object {

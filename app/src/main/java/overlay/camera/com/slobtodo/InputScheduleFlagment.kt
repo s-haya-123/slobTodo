@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.EditText
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.input_layout.*
 import kotlinx.android.synthetic.main.input_line.view.*
 
@@ -27,7 +29,6 @@ class InputScheduleFlagment: Fragment() {
             inputData?.let { this.data = it }
         }
         createInputLine()
-
     }
 
     private fun createInputLine():View{
@@ -41,6 +42,13 @@ class InputScheduleFlagment: Fragment() {
         text.setOnKeyListener { v, keyCode, event ->
             if(keyCode == KeyEvent.KEYCODE_ENTER){
                 createInputLine()
+                true
+            }
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                val _activity = activity
+                if(_activity is MainActivity){
+                    _activity.inputDataList += data
+                }
                 true
             }
             false
