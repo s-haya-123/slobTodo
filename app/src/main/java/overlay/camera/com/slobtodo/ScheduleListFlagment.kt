@@ -31,9 +31,9 @@ class ScheduleListFlagment: Fragment() {
                 activity_main_list.addView(list)
             }
         }
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener { _ ->
             if(savedInstanceState == null){
-                changeMainFragment()
+                changeMainFragment(null)
             }
         }
     }
@@ -45,6 +45,9 @@ class ScheduleListFlagment: Fragment() {
         activity?.apply {
             inputDataList.forEach {
                 val card = createCardView(this,it)
+                card.setOnClickListener { _ ->
+                    changeMainFragment(it)
+                }
                 list.addView(card) }
         }
         return list
@@ -62,14 +65,12 @@ class ScheduleListFlagment: Fragment() {
         return card
     }
 
-    private fun changeMainFragment(){
+    private fun changeMainFragment(inputData: InputData?){
         activity?.let {
             val fragmentManager: FragmentManager = it.supportFragmentManager
             val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-            //                val inputData = InputData()
-//                inputData.lineDataArray += InputData.LineData(false,"test")
             fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(null),"inputFlagment")
+            fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(inputData),"inputFlagment")
             fragmentTransaction.commit()
 
             val manage: InputMethodManager = it.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

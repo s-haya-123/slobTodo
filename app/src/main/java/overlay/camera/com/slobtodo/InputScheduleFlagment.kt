@@ -4,16 +4,15 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.EditText
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.input_layout.*
 import kotlinx.android.synthetic.main.input_line.view.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
     var data:InputData = InputData()
+    var isNewSchedule:Boolean = false
     private var isAlarmOn:Boolean = true
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
@@ -24,7 +23,8 @@ class InputScheduleFlagment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
-            val inputData = it.getSerializable(InputScheduleFlagment.ARG) as InputData?
+            val inputData = it.getSerializable(InputScheduleFlagment.ARG) as? InputData?
+            this.isNewSchedule = inputData == null
             setInputDataOnInputLine(inputData)
             inputData?.let { this.data = it }
         }
@@ -46,7 +46,7 @@ class InputScheduleFlagment: Fragment() {
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
                 val _activity = activity
-                if(_activity is MainActivity){
+                if(_activity is MainActivity && this.isNewSchedule){
                     _activity.inputDataList += data
                 }
                 true
