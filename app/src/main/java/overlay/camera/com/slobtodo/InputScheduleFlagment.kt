@@ -77,11 +77,11 @@ class InputScheduleFlagment: Fragment() {
 
             when(this.isAlarmOn){
                 true -> {
-                    menu.findItem(R.id.action_favorite).isVisible = true
+                    menu.findItem(R.id.action_activate).isVisible = true
                     menu.findItem(R.id.action_notactive).isVisible = false
                 }
                 false -> {
-                    menu.findItem(R.id.action_favorite).isVisible = false
+                    menu.findItem(R.id.action_activate).isVisible = false
                     menu.findItem(R.id.action_notactive).isVisible = true
                 }
             }
@@ -92,7 +92,7 @@ class InputScheduleFlagment: Fragment() {
         if (item != null){
             return when (item.itemId) {
                 R.id.action_settings -> true
-                R.id.action_favorite ->{
+                R.id.action_activate ->{
                     this.isAlarmOn = false
                     activity?.apply { this.fragmentManager.invalidateOptionsMenu() }
                     true
