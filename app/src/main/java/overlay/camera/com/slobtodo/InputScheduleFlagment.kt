@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.EditText
+import android.widget.ImageButton
 import kotlinx.android.synthetic.main.input_layout.*
 import kotlinx.android.synthetic.main.input_line.view.*
 
@@ -34,12 +36,13 @@ class InputScheduleFlagment: Fragment() {
     private fun createInputLine():View{
         val view:View = layoutInflater.inflate(R.layout.input_line, null)
         input_list.addView(view)
-        setEventOnEditText(view.input_text)
+        setEventOnEditText(view.input_text,view)
         return view
     }
-    private fun setEventOnEditText(text:EditText):Unit{
+    private fun setEventOnEditText(text:EditText,view: View):Unit{
         var lineData = InputData.LineData(false,"")
         text.setOnKeyListener { v, keyCode, event ->
+            Log.d("textKey",keyCode.toString())
             if(keyCode == KeyEvent.KEYCODE_ENTER){
                 createInputLine()
                 true
@@ -66,6 +69,13 @@ class InputScheduleFlagment: Fragment() {
             }
 
         })
+        text.setOnFocusChangeListener{_, hasFocus ->
+            if(hasFocus){
+                view.findViewById<ImageButton>(R.id.clearButton).visibility = View.VISIBLE
+            } else {
+                view.findViewById<ImageButton>(R.id.clearButton).visibility = View.INVISIBLE
+            }
+        }
         this.data.lineDataArray += lineData
     }
 
