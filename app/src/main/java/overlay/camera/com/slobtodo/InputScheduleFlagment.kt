@@ -1,5 +1,6 @@
 package overlay.camera.com.slobtodo
 
+import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
@@ -9,7 +10,9 @@ import android.view.*
 import android.widget.EditText
 import android.widget.ImageButton
 import kotlinx.android.synthetic.main.input_layout.*
+import kotlinx.android.synthetic.main.input_line.*
 import kotlinx.android.synthetic.main.input_line.view.*
+import kotlinx.android.synthetic.main.schedule_card.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
@@ -35,12 +38,17 @@ class InputScheduleFlagment: Fragment() {
 
     private fun createInputLine():View{
         val view:View = layoutInflater.inflate(R.layout.input_line, null)
+        var lineData = InputData.LineData(false,"")
+        var index = this.data.lineDataArray.size
         input_list.addView(view)
-        setEventOnEditText(view.input_text,view)
+        setEventOnEditText(view.input_text,view,lineData)
+        view.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
+            input_list.removeViewInLayout(view)
+            this.data.lineDataArray.removeAt(index)
+        }
         return view
     }
-    private fun setEventOnEditText(text:EditText,view: View):Unit{
-        var lineData = InputData.LineData(false,"")
+    private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
         text.setOnKeyListener { v, keyCode, event ->
             Log.d("textKey",keyCode.toString())
             if(keyCode == KeyEvent.KEYCODE_ENTER){
@@ -76,7 +84,7 @@ class InputScheduleFlagment: Fragment() {
                 view.findViewById<ImageButton>(R.id.clearButton).visibility = View.INVISIBLE
             }
         }
-        this.data.lineDataArray += lineData
+        this.data.lineDataArray.add(lineData)
     }
 
 
