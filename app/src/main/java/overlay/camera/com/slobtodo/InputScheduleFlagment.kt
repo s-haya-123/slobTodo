@@ -43,7 +43,7 @@ class InputScheduleFlagment: Fragment() {
         input_list.addView(view)
         setEventOnEditText(view.input_text,view,lineData)
         view.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
-            input_list.removeViewInLayout(view)
+            input_list.removeView(view)
             this.data.lineDataArray.removeAt(index)
         }
         return view
