@@ -20,6 +20,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class ScheduleListFlagment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        var _activity = activity
+        if(_activity is MainActivity){
+            _activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        }
         return inflater.inflate(R.layout.activity_main, container, false)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,7 +75,7 @@ class ScheduleListFlagment: Fragment() {
         activity?.let {
             val fragmentManager: FragmentManager = it.supportFragmentManager
             val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack(null)
             fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(inputData),"inputFlagment")
             fragmentTransaction.commit()
 

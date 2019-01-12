@@ -1,12 +1,16 @@
 package overlay.camera.com.slobtodo
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentTransaction
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import kotlinx.android.synthetic.main.input_layout.*
@@ -22,6 +26,10 @@ class InputScheduleFlagment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
+        var _activity = activity
+        if(_activity is MainActivity){
+           _activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
         return inflater.inflate(R.layout.input_layout, container, false)
     }
 
@@ -48,6 +56,7 @@ class InputScheduleFlagment: Fragment() {
         }
         return view
     }
+
     private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
         text.setOnKeyListener { v, keyCode, event ->
             Log.d("textKey",keyCode.toString())
@@ -56,10 +65,7 @@ class InputScheduleFlagment: Fragment() {
                 true
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                val _activity = activity
-                if(_activity is MainActivity && this.isNewSchedule){
-                    _activity.inputDataList += data
-                }
+                addInputDataOnActivity()
                 true
             }
             false
@@ -86,6 +92,12 @@ class InputScheduleFlagment: Fragment() {
         }
         this.data.lineDataArray.add(lineData)
     }
+    private fun addInputDataOnActivity(){
+        val _activity = activity
+        if(_activity is MainActivity && this.isNewSchedule){
+            _activity.inputDataList += data
+        }
+    }
 
 
     override fun onCreateOptionsMenu(menu: Menu?, menuInflater: MenuInflater?) {
@@ -109,7 +121,11 @@ class InputScheduleFlagment: Fragment() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item != null){
             return when (item.itemId) {
-                R.id.action_settings -> true
+                android.R.id.home ->{
+                    addInputDataOnActivity()
+                    backBeforeFragment()
+                    true
+                }
                 R.id.action_activate ->{
                     this.isAlarmOn = false
                     activity?.apply { this.fragmentManager.invalidateOptionsMenu() }
@@ -126,6 +142,15 @@ class InputScheduleFlagment: Fragment() {
             return super.onOptionsItemSelected(item)
         }
     }
+    private fun backBeforeFragment(){
+        activity?.let {
+            val fragmentManager:FragmentManager = it.supportFragmentManager
+            val fragmentTransaction:FragmentTransaction = fragmentManager.beginTransaction()
+
+            fragmentTransaction.replace(R.id.content_fragment,ScheduleListFlagment.newInstance(),"ScheduleFlagment")
+            fragmentTransaction.commit()
+        }
+    }
     private fun setInputDataOnInputLine(inputData: InputData?):Unit{
         inputData?.let {
             it.lineDataArray.forEach{
@@ -134,6 +159,7 @@ class InputScheduleFlagment: Fragment() {
             }
         }
     }
+
     companion object {
         val ARG:String = "INPUT_DATA"
 
