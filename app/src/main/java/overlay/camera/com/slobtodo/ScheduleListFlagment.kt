@@ -35,12 +35,15 @@ class ScheduleListFlagment: Fragment() {
                 val list:View = createLinearList(it)
                 activity_main_list.addView(list)
             }
-        }
-        fab.setOnClickListener { _ ->
-            if(savedInstanceState == null){
-                changeMainFragment(null)
+            fab.setOnClickListener { _ ->
+                if(savedInstanceState == null){
+                    val inputData = InputData()
+                    _activity.inputDataList += inputData
+                    changeMainFragment(inputData)
+                }
             }
         }
+
     }
 
     private fun createLinearList(inputDataList:List<InputData>):View{
@@ -71,7 +74,7 @@ class ScheduleListFlagment: Fragment() {
         return card
     }
 
-    private fun changeMainFragment(inputData: InputData?){
+    private fun changeMainFragment(inputData: InputData){
         activity?.let {
             val fragmentManager: FragmentManager = it.supportFragmentManager
             val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
