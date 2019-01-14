@@ -13,7 +13,9 @@
             android:id="@+id/checkBox"
             android:layout_width="86dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:checked="false"
+            android:duplicateParentState="false" />
 
         <TextView
             android:id="@+id/show_line_text"

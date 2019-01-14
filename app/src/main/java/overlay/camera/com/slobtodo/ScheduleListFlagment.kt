@@ -13,12 +13,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class ScheduleListFlagment: Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        var _activity = activity
+        if(_activity is MainActivity){
+            _activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        }
         return inflater.inflate(R.layout.activity_main, container, false)
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -30,12 +35,15 @@ class ScheduleListFlagment: Fragment() {
                 val list:View = createLinearList(it)
                 activity_main_list.addView(list)
             }
-        }
-        fab.setOnClickListener { _ ->
-            if(savedInstanceState == null){
-                changeMainFragment(null)
+            fab.setOnClickListener { _ ->
+                if(savedInstanceState == null){
+                    val inputData = InputData()
+                    _activity.inputDataList += inputData
+                    changeMainFragment(inputData)
+                }
             }
         }
+
     }
 
     private fun createLinearList(inputDataList:List<InputData>):View{
@@ -59,17 +67,18 @@ class ScheduleListFlagment: Fragment() {
         card.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
         inputData.lineDataArray.forEach {
             val showLine:View = layoutInflater.inflate(R.layout.show_line, null)
+            showLine.findViewById<CheckBox>(R.id.checkBox).isEnabled = false
             showLine.findViewById<TextView>(R.id.show_line_text).text = it.todo
             card.findViewById<LinearLayout>(R.id.schedule_card_linear).addView(showLine)
         }
         return card
     }
 
-    private fun changeMainFragment(inputData: InputData?){
+    private fun changeMainFragment(inputData: InputData){
         activity?.let {
             val fragmentManager: FragmentManager = it.supportFragmentManager
             val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.addToBackStack(null)
             fragmentTransaction.replace(R.id.content_fragment,InputScheduleFlagment.newInstance(inputData),"inputFlagment")
             fragmentTransaction.commit()
 
