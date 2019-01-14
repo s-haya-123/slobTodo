@@ -65,6 +65,14 @@ class InputScheduleFlagment: Fragment() {
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
 //                addInputDataOnActivity()
+                context?.let {
+                    val dbService:InputDataDBService = InputDataDBService(it,2)
+                    dbService.open()
+                    dbService.insertLineData(data.lineDataArray)
+//                    dbService.insertLineData(data.lineDataArray[0])
+
+                }
+
                 true
             }
             false
