@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
 import android.text.format.DateFormat
+import android.util.Range
 import java.util.*
 
 
@@ -24,9 +25,29 @@ class InputDataDBService(val context: Context,val version:Int){
     fun close():Unit{
         dbHelper.close()
     }
-    fun insertLineData(lineDataList: List<InputData.LineData>){
+    fun insertInputData(inputData:InputData):Long?{
+        val argNum = 3
+        val tableName = "input_data"
+        val argString = "(title,created_time,updated_time)"
+        val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?)")
+        db?.beginTransaction();
+        val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
+        val currentDate = getCurrentData()
+        statement?.let {
+            it.bindString(1,inputData.title)
+            it.bindString(2,currentDate)
+            it.bindString(3,currentDate)
+        }
+        val id =statement?.executeInsert()
+        db?.setTransactionSuccessful()
+        db?.endTransaction()
+        return id
+    }
+    fun updateLineData(lineDataList: List<InputData.LineData>){
+
+    }
+    fun insertLineData(lineDataList: List<InputData.LineData>,inputId:Long): LongRange? {
         val argNum = 5
-        val inputId:Long = 1
         val sql = createSqlQuery(lineDataList,"line_data","(ischecked,todo,inputDataId,created_time,updated_time)",argNum)
         db?.beginTransaction();
         val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
@@ -41,9 +62,13 @@ class InputDataDBService(val context: Context,val version:Int){
                 it.bindString(argNum * index + 5, "${currentDate}")
             }
         }
-        statement?.execute()
+        val lastId = statement?.executeInsert()
         db?.setTransactionSuccessful()
         db?.endTransaction()
+        lastId?.let {
+            return (it - lineDataList.size +1 .. it)
+        }
+        return null
     }
     private fun getCurrentData():String{
         val date: Date = Date()
@@ -60,11 +85,5 @@ class InputDataDBService(val context: Context,val version:Int){
         }
         return sql
     }
-//    fun insertLineData(lineData:InputData.LineData):Unit{
-//        val values = ContentValues()
-//        values.put("ischecked",lineData.isChecked)
-//        values.put("todo",lineData.todo)
-//        db?.insert("line_data",null,values)
-//    }
 
 }

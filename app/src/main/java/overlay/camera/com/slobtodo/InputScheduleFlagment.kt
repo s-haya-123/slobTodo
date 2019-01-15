@@ -39,7 +39,7 @@ class InputScheduleFlagment: Fragment() {
             setInputDataOnInputLine(inputData)
             inputData?.let { this.data = it }
         }
-        var lineData = InputData.LineData(false,"")
+        var lineData = InputData.LineData()
         createInputLine(lineData)
     }
 
@@ -56,22 +56,31 @@ class InputScheduleFlagment: Fragment() {
     }
 
     private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
-        text.setOnKeyListener { v, keyCode, event ->
+        text.setOnKeyListener { _, keyCode, event ->
             Log.d("textKey",keyCode.toString())
             if(keyCode == KeyEvent.KEYCODE_ENTER){
-                var lineData = InputData.LineData(false,"")
+                var lineData = InputData.LineData()
                 createInputLine(lineData)
                 true
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-//                addInputDataOnActivity()
                 context?.let {
                     val dbService:InputDataDBService = InputDataDBService(it,2)
                     dbService.open()
-                    dbService.insertLineData(data.lineDataArray)
-//                    dbService.insertLineData(data.lineDataArray[0])
-                }
+                    if(data.id == null){
+                        data.id  = dbService.insertInputData(data)
+                        data.id?.let {
+                            val idRange = dbService.insertLineData(data.lineDataArray,it)
+                            data.lineDataArray.forEachIndexed { index, lineData ->
+                                lineData.id = idRange?.elementAt(index)
+                                Log.d("linedata",lineData.id.toString())
+                            }
+                        }
+                    }
 
+
+                    dbService.close()
+                }
                 true
             }
             false
