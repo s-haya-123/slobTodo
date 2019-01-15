@@ -70,7 +70,6 @@ class InputScheduleFlagment: Fragment() {
                     dbService.open()
                     dbService.insertLineData(data.lineDataArray)
 //                    dbService.insertLineData(data.lineDataArray[0])
-
                 }
 
                 true
