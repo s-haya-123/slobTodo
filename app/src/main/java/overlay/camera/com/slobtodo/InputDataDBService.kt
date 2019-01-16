@@ -4,14 +4,16 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
 import android.text.format.DateFormat
-import android.util.Range
 import java.util.*
+import android.content.ContentValues
+
+
 
 
 class InputDataDBService(val context: Context,val version:Int){
-    val SQL_INSERT_INPUT_DATA = "insert into input_data values"
-    val SQL_INSERT_LINE_DATA = "insert into line_data values"
-
+    fun InputData.LineData.isChecktoLong():Long{
+        return if(this.isChecked) 0 else 1
+    }
     private var dbHelper:InputDataDBHelper
     private var db: SQLiteDatabase? = null
     init {
@@ -26,7 +28,6 @@ class InputDataDBService(val context: Context,val version:Int){
         dbHelper.close()
     }
     fun insertInputData(inputData:InputData):Long?{
-        val argNum = 3
         val tableName = "input_data"
         val argString = "(title,created_time,updated_time)"
         val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?)")
@@ -43,10 +44,37 @@ class InputDataDBService(val context: Context,val version:Int){
         db?.endTransaction()
         return id
     }
-    fun updateLineData(lineDataList: List<InputData.LineData>){
 
+    fun updateLine(lineData:InputData.LineData){
+        val currentDate = getCurrentData()
+        val cv = ContentValues()
+        cv.put("ischecked", lineData.isChecktoLong())
+        cv.put("todo", lineData.todo)
+        cv.put("updated_time",currentDate)
+        db?.update("line_data", cv, "_id = ${lineData.id}", null)
     }
-    fun insertLineData(lineDataList: List<InputData.LineData>,inputId:Long): LongRange? {
+
+    fun insertLine(lineData:InputData.LineData,inputId:Long){
+        val tableName = "line_data"
+        val argString = "(ischecked,todo,inputDataId,created_time,updated_time)"
+        val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?,?,?)")
+
+        db?.beginTransaction();
+        val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
+        val currentDate = getCurrentData()
+        statement?.let {
+            it.bindLong(1,lineData.isChecktoLong())
+            it.bindString(2,lineData.todo)
+            it.bindLong(3,inputId)
+            it.bindString(4,currentDate)
+            it.bindString(5,currentDate)
+        }
+        val id =statement?.executeInsert()
+        db?.setTransactionSuccessful()
+        db?.endTransaction()
+    }
+
+    fun insertLineDataList(lineDataList: List<InputData.LineData>, inputId:Long): LongRange? {
         val argNum = 5
         val sql = createSqlQuery(lineDataList,"line_data","(ischecked,todo,inputDataId,created_time,updated_time)",argNum)
         db?.beginTransaction();
@@ -54,7 +82,7 @@ class InputDataDBService(val context: Context,val version:Int){
         val currentDate = getCurrentData()
         lineDataList.forEachIndexed { index, lineData ->
             statement?.let {
-                val statementIsCheck:Long = if(lineData.isChecked) 0 else 1
+                val statementIsCheck:Long = lineData.isChecktoLong()
                 it.bindLong(argNum * index + 1,statementIsCheck)
                 it.bindString(argNum * index + 2,lineData.todo)
                 it.bindLong(argNum * index + 3,inputId)

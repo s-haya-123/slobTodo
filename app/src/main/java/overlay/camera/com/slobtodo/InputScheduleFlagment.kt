@@ -1,7 +1,5 @@
 package overlay.camera.com.slobtodo
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -10,13 +8,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import kotlinx.android.synthetic.main.input_layout.*
-import kotlinx.android.synthetic.main.input_line.*
 import kotlinx.android.synthetic.main.input_line.view.*
-import kotlinx.android.synthetic.main.schedule_card.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
@@ -70,15 +65,21 @@ class InputScheduleFlagment: Fragment() {
                     if(data.id == null){
                         data.id  = dbService.insertInputData(data)
                         data.id?.let {
-                            val idRange = dbService.insertLineData(data.lineDataArray,it)
+                            val idRange = dbService.insertLineDataList(data.lineDataArray,it)
                             data.lineDataArray.forEachIndexed { index, lineData ->
                                 lineData.id = idRange?.elementAt(index)
-                                Log.d("linedata",lineData.id.toString())
+                            }
+                        }
+                    } else {
+                        data.lineDataArray.forEach {
+                            var lineData = it
+                            if(it.id == null){
+                                data.id?.let { dbService.insertLine(lineData,it) }
+                            } else {
+                                dbService.updateLine(lineData)
                             }
                         }
                     }
-
-
                     dbService.close()
                 }
                 true
