@@ -1,6 +1,5 @@
 package overlay.camera.com.slobtodo
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,13 +9,10 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import kotlinx.android.synthetic.main.input_layout.*
-import kotlinx.android.synthetic.main.input_line.*
 import kotlinx.android.synthetic.main.input_line.view.*
-import kotlinx.android.synthetic.main.schedule_card.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
@@ -39,7 +35,7 @@ class InputScheduleFlagment: Fragment() {
             setInputDataOnInputLine(inputData)
             inputData?.let { this.data = it }
         }
-        var lineData = InputData.LineData(false,"")
+        var lineData = InputData.LineData()
         createInputLine(lineData)
     }
 
@@ -56,23 +52,17 @@ class InputScheduleFlagment: Fragment() {
     }
 
     private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
-        text.setOnKeyListener { v, keyCode, event ->
+        text.setOnKeyListener { _, keyCode, event ->
             Log.d("textKey",keyCode.toString())
             if(keyCode == KeyEvent.KEYCODE_ENTER){
-                var lineData = InputData.LineData(false,"")
+                var lineData = InputData.LineData()
                 createInputLine(lineData)
                 true
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-//                addInputDataOnActivity()
                 context?.let {
-                    val dbService:InputDataDBService = InputDataDBService(it,2)
-                    dbService.open()
-                    dbService.insertLineData(data.lineDataArray)
-//                    dbService.insertLineData(data.lineDataArray[0])
-
+                    operateSQLInputData(it)
                 }
-
                 true
             }
             false
@@ -83,12 +73,10 @@ class InputScheduleFlagment: Fragment() {
 
             override fun onTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
                 lineData.todo = s.toString()
-//                Log.d("textChange",lineData.todo)
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
-
         })
         text.setOnFocusChangeListener{_, hasFocus ->
             if(hasFocus){
@@ -99,6 +87,37 @@ class InputScheduleFlagment: Fragment() {
         }
         this.data.lineDataArray.add(lineData)
     }
+
+    private fun operateSQLInputData(context:Context){
+        val dbService:InputDataDBService = InputDataDBService(context,2)
+        dbService.open()
+        if(data.id == null){
+            insertNewInputData(dbService,data)
+        } else {
+            updateAlreadyExistInputData(dbService,data)
+        }
+        dbService.close()
+    }
+    private fun insertNewInputData(dbService:InputDataDBService,inputData: InputData){
+        dbService.insertInputData(inputData)?.let {
+            inputData.id  = it
+            val idRange = dbService.insertLineDataList(inputData.lineDataArray,it)
+            inputData.lineDataArray.forEachIndexed { index, lineData ->
+                lineData.id = idRange?.elementAt(index)
+            }
+        }
+    }
+    private fun updateAlreadyExistInputData(dbService:InputDataDBService,inputData: InputData){
+        inputData.lineDataArray.forEach {
+            var lineData = it
+            if(it.id == null){
+                inputData.id?.let { dbService.insertLine(lineData,it) }
+            } else {
+                dbService.updateLine(lineData)
+            }
+        }
+    }
+
 
 
 
