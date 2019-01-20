@@ -27,11 +27,51 @@ class InputDataDBService(val context: Context,val version:Int){
     fun close():Unit{
         dbHelper.close()
     }
+    fun selectInputData():List<InputData>{
+        val tableName = "input_data"
+        val inputDataList = arrayListOf<InputData>()
+        db?.beginTransaction()
+
+        val cursor = db?.query(tableName, arrayOf("_id","title"), null, null, null, null, null)
+        cursor?.let {
+            var isEof = it.moveToFirst()
+            while (isEof) {
+                var inputData = InputData()
+                inputData.id = cursor.getLong(cursor.getColumnIndex("_id"))
+                inputData.title = cursor.getString(cursor.getColumnIndex("title"))
+                inputData.lineDataArray = selectLineData(inputData.id)
+                inputDataList.add(inputData)
+                isEof = cursor.moveToNext()
+            }
+            it.close()
+        }
+        db?.setTransactionSuccessful()
+        db?.endTransaction()
+        return inputDataList
+    }
+    fun selectLineData(id:Long?):MutableList<InputData.LineData>{
+        val tableName = "line_data"
+        val lineDataList = arrayListOf<InputData.LineData>()
+        val cursor = db?.query(tableName, null, "inputDataId=?", arrayOf(id.toString()), null, null, null)
+        cursor?.let {
+            var isEof = it.moveToFirst()
+            while (isEof) {
+                var lineData = InputData.LineData()
+                lineData.id = cursor.getLong(cursor.getColumnIndex("_id"))
+                lineData.isChecked = if(cursor.getLong(cursor.getColumnIndex("ischecked")) > 0) false else true
+                lineData.todo = cursor.getString(cursor.getColumnIndex("todo"))
+                lineDataList.add(lineData)
+                isEof = cursor.moveToNext()
+            }
+            it.close()
+        }
+        return lineDataList
+    }
     fun insertInputData(inputData:InputData):Long?{
         val tableName = "input_data"
         val argString = "(title,created_time,updated_time)"
         val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?)")
-        db?.beginTransaction();
+        db?.beginTransaction()
         val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
         val currentDate = getCurrentData()
         statement?.let {
