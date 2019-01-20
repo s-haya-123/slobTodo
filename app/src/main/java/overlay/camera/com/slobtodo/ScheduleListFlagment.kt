@@ -30,17 +30,19 @@ class ScheduleListFlagment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val _activity = activity
         if(_activity is MainActivity){
-            var alreadyExistinputData = selectInputDataFromDB()
-            _activity.inputDataList = alreadyExistinputData!!
-            val result = _activity.inputDataList.withIndex().groupBy{ it.index / 2 }.map{ it.value.map{ it.value } }
-            result.forEach {
+//            _activity.inputDataList = alreadyExistinputData!!
+
+            val result = selectInputDataFromDB()?.let {
+                return@let it.withIndex().groupBy{ it.index / 2 }.map{ it.value.map{ it.value } }
+            }
+            result?.forEach {
                 val list:View = createLinearList(it)
                 activity_main_list.addView(list)
             }
             fab.setOnClickListener { _ ->
                 if(savedInstanceState == null){
                     val inputData = InputData()
-                    _activity.inputDataList += inputData
+//                    _activity.inputDataList += inputData
                     changeMainFragment(inputData)
                 }
             }
