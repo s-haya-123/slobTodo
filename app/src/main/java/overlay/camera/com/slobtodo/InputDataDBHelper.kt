@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper
 class InputDataDBHelper(var mContext: Context?,var version:Int) : SQLiteOpenHelper(mContext, "INPUT_DATA", null, version) {
     companion object {
         val CREATE_INPUT_DATA = "create table input_data ( _id integer primary key autoincrement, title text not null, created_time text not null, updated_time text not null);"
-        val CREATE_LINE_DATA = "create table line_data ( _id integer primary key autoincrement, ischecked boolean not null,todo text not null,inputDataId integer not null, created_time text not null, updated_time text not null );"
+        val CREATE_LINE_DATA = "create table line_data ( _id integer primary key autoincrement, ischecked boolean not null,todo text not null,inputDataId integer not null, isdeleted text, created_time text not null, updated_time text not null );"
         val DELETE_INPUT_DATA ="drop table input_data;"
         val DELETE_LINE_DATA ="drop table line_data;"
     }

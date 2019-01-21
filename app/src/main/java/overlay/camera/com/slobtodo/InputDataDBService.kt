@@ -52,7 +52,7 @@ class InputDataDBService(val context: Context,val version:Int){
     fun selectLineData(id:Long?):MutableList<InputData.LineData>{
         val tableName = "line_data"
         val lineDataList = arrayListOf<InputData.LineData>()
-        val cursor = db?.query(tableName, null, "inputDataId=?", arrayOf(id.toString()), null, null, null)
+        val cursor = db?.query(tableName, null, "inputDataId=? and isdeleted IS NULL", arrayOf(id.toString()), null, null, null)
         cursor?.let {
             var isEof = it.moveToFirst()
             while (isEof) {
@@ -91,6 +91,9 @@ class InputDataDBService(val context: Context,val version:Int){
         cv.put("ischecked", lineData.isChecktoLong())
         cv.put("todo", lineData.todo)
         cv.put("updated_time",currentDate)
+        if(lineData.isDelete){
+            cv.put("isdeleted",currentDate)
+        }
         db?.update("line_data", cv, "_id = ${lineData.id}", null)
     }
 
@@ -113,6 +116,13 @@ class InputDataDBService(val context: Context,val version:Int){
         db?.setTransactionSuccessful()
         db?.endTransaction()
     }
+    private fun getIsDeleted(lineData:InputData.LineData,date:String):String?{
+        if(lineData.isDelete){
+            return date
+        } else {
+            return null
+        }
+    }
 
     fun insertLineDataList(lineDataList: List<InputData.LineData>, inputId:Long): LongRange? {
         val argNum = 5
@@ -126,8 +136,8 @@ class InputDataDBService(val context: Context,val version:Int){
                 it.bindLong(argNum * index + 1,statementIsCheck)
                 it.bindString(argNum * index + 2,lineData.todo)
                 it.bindLong(argNum * index + 3,inputId)
-                it.bindString(argNum * index + 4, "${currentDate}")
-                it.bindString(argNum * index + 5, "${currentDate}")
+                it.bindString(argNum * index + 4,currentDate)
+                it.bindString(argNum * index + 5,currentDate)
             }
         }
         val lastId = statement?.executeInsert()
