@@ -40,14 +40,14 @@ class InputScheduleFlagment: Fragment() {
     }
 
     private fun createInputLine(lineData: InputData.LineData):View{
-        val view:View = layoutInflater.inflate(R.layout.input_line, null)
-        input_list.addView(view)
-        setEventOnEditText(view.input_text,view,lineData)
-        view.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
-            input_list.removeView(view)
-            lineData.isDelete = true
+        return layoutInflater.inflate(R.layout.input_line, null).apply{
+            input_list.addView(this)
+            setEventOnEditText(this.input_text,this,lineData)
+            this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
+                input_list.removeView(this)
+                lineData.isDelete = true
+            }
         }
-        return view
     }
 
     private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
