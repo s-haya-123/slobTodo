@@ -9,6 +9,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
 import kotlinx.android.synthetic.main.input_layout.*
@@ -38,16 +39,30 @@ class InputScheduleFlagment: Fragment() {
         var lineData = InputData.LineData()
         createInputLine(lineData)
     }
-
-    private fun createInputLine(lineData: InputData.LineData):View{
-        val view:View = layoutInflater.inflate(R.layout.input_line, null)
-        input_list.addView(view)
-        setEventOnEditText(view.input_text,view,lineData)
-        view.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
-            input_list.removeView(view)
-            lineData.isDelete = true
+    private fun setInputDataOnInputLine(inputData: InputData?):Unit{
+        inputData?.let {
+            it.lineDataArray.forEach{
+                val view = this.createInputLine(it)
+                view.input_text.setText(it.todo)
+            }
         }
-        return view
+    }
+    private fun createInputLine(lineData: InputData.LineData):View{
+        return layoutInflater.inflate(R.layout.input_line, null).apply{
+            input_list.addView(this)
+            setEventOnEditText(this.input_text,this,lineData)
+            this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
+                input_list.removeView(this)
+                lineData.isDelete = true
+            }
+            this.findViewById<CheckBox>(R.id.checkBox).let{
+                it.isChecked = lineData.isChecked
+                it.jumpDrawablesToCurrentState()
+                it.setOnClickListener { _->
+                    lineData.isChecked = it.isChecked
+                }
+            }
+        }
     }
 
     private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
@@ -173,14 +188,7 @@ class InputScheduleFlagment: Fragment() {
             fragmentTransaction.commit()
         }
     }
-    private fun setInputDataOnInputLine(inputData: InputData?):Unit{
-        inputData?.let {
-            it.lineDataArray.forEach{
-                val view = this.createInputLine(it)
-                view.input_text.setText(it.todo)
-            }
-        }
-    }
+
 
     companion object {
         val ARG:String = "INPUT_DATA"

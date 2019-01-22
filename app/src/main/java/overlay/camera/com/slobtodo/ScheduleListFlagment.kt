@@ -61,29 +61,33 @@ class ScheduleListFlagment: Fragment() {
     }
 
     private fun createLinearList(inputDataList:List<InputData>):View{
-        val list:LinearLayout = LinearLayout(activity)
-        list.orientation = LinearLayout.HORIZONTAL
-        list.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-        activity?.apply {
-            inputDataList.forEach {
-                val card = createCardView(this,it)
-                card.setOnClickListener { _ ->
-                    changeMainFragment(it)
-                }
-                list.addView(card) }
+        return  LinearLayout(activity).apply {
+            this.orientation = LinearLayout.HORIZONTAL
+            this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+            activity?.let {
+                inputDataList.forEach {inputData ->
+                    val card = createCardView(it,inputData)
+                    card.setOnClickListener {
+                        changeMainFragment(inputData)
+                    }
+                    this.addView(card) }
+            }
         }
-        return list
     }
     private fun createCardView(activity: FragmentActivity,inputData:InputData):View{
         val card:View = layoutInflater.inflate(R.layout.schedule_card, null)
         val p = Point()
         activity.windowManager.defaultDisplay?.getSize(p)
         card.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
-        inputData.lineDataArray.forEach {
-            val showLine:View = layoutInflater.inflate(R.layout.show_line, null)
-            showLine.findViewById<CheckBox>(R.id.checkBox).isEnabled = false
-            showLine.findViewById<TextView>(R.id.show_line_text).text = it.todo
-            card.findViewById<LinearLayout>(R.id.schedule_card_linear).addView(showLine)
+        inputData.lineDataArray.forEach { lineData ->
+            if(lineData.isChecked){
+                return@forEach
+            }
+            layoutInflater.inflate(R.layout.show_line, null).apply{
+                this.findViewById<CheckBox>(R.id.checkBox).isEnabled = false
+                this.findViewById<TextView>(R.id.show_line_text).text = lineData.todo
+                card.findViewById<LinearLayout>(R.id.schedule_card_linear).addView(this)
+            }
         }
         return card
     }

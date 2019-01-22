@@ -3,7 +3,7 @@ package overlay.camera.com.slobtodo
 import java.io.Serializable
 
 class InputData: Serializable {
-    class LineData(){
+    class LineData():Serializable{
         var isChecked:Boolean
         var todo:String
         var id:Long?
