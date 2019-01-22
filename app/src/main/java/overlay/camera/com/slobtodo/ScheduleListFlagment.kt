@@ -61,18 +61,18 @@ class ScheduleListFlagment: Fragment() {
     }
 
     private fun createLinearList(inputDataList:List<InputData>):View{
-        val list:LinearLayout = LinearLayout(activity)
-        list.orientation = LinearLayout.HORIZONTAL
-        list.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-        activity?.apply {
-            inputDataList.forEach {
-                val card = createCardView(this,it)
-                card.setOnClickListener { _ ->
-                    changeMainFragment(it)
-                }
-                list.addView(card) }
+        return  LinearLayout(activity).apply {
+            this.orientation = LinearLayout.HORIZONTAL
+            this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+            activity?.let {
+                inputDataList.forEach {inputData ->
+                    val card = createCardView(it,inputData)
+                    card.setOnClickListener { _ ->
+                        changeMainFragment(inputData)
+                    }
+                    this.addView(card) }
+            }
         }
-        return list
     }
     private fun createCardView(activity: FragmentActivity,inputData:InputData):View{
         val card:View = layoutInflater.inflate(R.layout.schedule_card, null)
