@@ -67,7 +67,7 @@ class ScheduleListFlagment: Fragment() {
             activity?.let {
                 inputDataList.forEach {inputData ->
                     val card = createCardView(it,inputData)
-                    card.setOnClickListener { _ ->
+                    card.setOnClickListener {
                         changeMainFragment(inputData)
                     }
                     this.addView(card) }
@@ -79,11 +79,15 @@ class ScheduleListFlagment: Fragment() {
         val p = Point()
         activity.windowManager.defaultDisplay?.getSize(p)
         card.layoutParams = ViewGroup.LayoutParams(p.x / 2 ,ViewGroup.LayoutParams.WRAP_CONTENT)
-        inputData.lineDataArray.forEach {
-            val showLine:View = layoutInflater.inflate(R.layout.show_line, null)
-            showLine.findViewById<CheckBox>(R.id.checkBox).isEnabled = false
-            showLine.findViewById<TextView>(R.id.show_line_text).text = it.todo
-            card.findViewById<LinearLayout>(R.id.schedule_card_linear).addView(showLine)
+        inputData.lineDataArray.forEach { lineData ->
+            if(lineData.isChecked){
+                return@forEach
+            }
+            layoutInflater.inflate(R.layout.show_line, null).apply{
+                this.findViewById<CheckBox>(R.id.checkBox).isEnabled = false
+                this.findViewById<TextView>(R.id.show_line_text).text = lineData.todo
+                card.findViewById<LinearLayout>(R.id.schedule_card_linear).addView(this)
+            }
         }
         return card
     }
