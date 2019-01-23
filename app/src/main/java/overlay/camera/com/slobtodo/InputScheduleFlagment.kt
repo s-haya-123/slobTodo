@@ -49,7 +49,11 @@ class InputScheduleFlagment: Fragment() {
     }
     private fun createInputLine(lineData: InputData.LineData):View{
         return layoutInflater.inflate(R.layout.input_line, null).apply{
-            input_list.addView(this)
+            if(lineData.isChecked){
+                checked_list.addView(this)
+            } else {
+                input_list.addView(this)
+            }
             setEventOnEditText(this.input_text,this,lineData)
             this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
                 input_list.removeView(this)
@@ -59,7 +63,20 @@ class InputScheduleFlagment: Fragment() {
                 it.isChecked = lineData.isChecked
                 it.jumpDrawablesToCurrentState()
                 it.setOnClickListener { _->
-                    lineData.isChecked = it.isChecked
+
+                    lineData.isChecked = when(it.isChecked){
+                        true -> {
+                            input_list.removeView(this)
+                            checked_list.addView(this)
+                            true
+                        }
+                        false -> {
+                            checked_list.removeView(this)
+                            input_list.addView(this)
+                            false
+                        }
+                    }
+
                 }
             }
         }
