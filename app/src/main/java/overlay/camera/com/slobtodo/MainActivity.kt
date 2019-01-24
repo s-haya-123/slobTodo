@@ -1,6 +1,10 @@
 package overlay.camera.com.slobtodo
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.FragmentManager
@@ -15,6 +19,14 @@ import android.widget.Toolbar
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import android.widget.Toast
+import android.app.AlarmManager
+import android.support.v4.app.AlarmManagerCompat.setExact
+import android.app.PendingIntent
+import android.content.Intent
+import android.icu.util.Calendar
+import android.view.View
+
 
 class MainActivity : AppCompatActivity() {
 //    var inputDataList:List<InputData> = mutableListOf()
@@ -23,7 +35,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.content_main)
         setSupportActionBar(toolbar_input)
         setTitle("")
-
         if(savedInstanceState == null){
             val fragmentManager:FragmentManager = this.supportFragmentManager
             val fragmentTransaction:FragmentTransaction = fragmentManager.beginTransaction()
@@ -33,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

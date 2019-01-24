@@ -1,8 +1,13 @@
 package overlay.camera.com.slobtodo
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.icu.util.Calendar
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.text.Editable
@@ -12,6 +17,7 @@ import android.view.*
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.Toast
 import kotlinx.android.synthetic.main.input_layout.*
 import kotlinx.android.synthetic.main.input_line.view.*
 
@@ -182,18 +188,57 @@ class InputScheduleFlagment: Fragment() {
                 }
                 R.id.action_activate ->{
                     this.isAlarmOn = false
-                    activity?.apply { this.fragmentManager.invalidateOptionsMenu() }
+                    activity?.let {
+                        alarmCancel(it)
+                        it.fragmentManager.invalidateOptionsMenu()
+                    }
                     true
                 }
                 R.id.action_notactive ->{
                     this.isAlarmOn = true
-                    activity?.apply { this.fragmentManager.invalidateOptionsMenu() }
+                    activity?.let {
+                        alarmStart(it)
+                        it.fragmentManager.invalidateOptionsMenu()
+                    }
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
             }
         } else {
             return super.onOptionsItemSelected(item)
+        }
+    }
+    private fun alarmStart(activity: FragmentActivity) {
+        val calendar = Calendar.getInstance()
+        calendar.setTimeInMillis(System.currentTimeMillis())
+        // 10sec
+        calendar.add(Calendar.SECOND, 10)
+        val intent = Intent(activity.applicationContext, ReminderNotification::class.java)
+        intent.putExtra("RequestCode", ReminderNotification.REMINDER_REQUESTCODE)
+
+        val pending = PendingIntent.getBroadcast(
+                activity.applicationContext, ReminderNotification.REMINDER_REQUESTCODE, intent, 0)
+
+
+        val am = activity.getSystemService(Context.ALARM_SERVICE)
+
+        if (am is AlarmManager) {
+            am.setExact(AlarmManager.RTC_WAKEUP,
+                    calendar.getTimeInMillis(), pending)
+
+
+            Toast.makeText(activity.applicationContext,
+                    "alarm start", Toast.LENGTH_SHORT).show()
+
+        }
+    }
+    private fun alarmCancel(activity: FragmentActivity){
+        val intent = Intent(activity.applicationContext,ReminderNotification::class.java)
+        val pending = PendingIntent.getBroadcast(activity.applicationContext,ReminderNotification.REMINDER_REQUESTCODE,intent,0)
+        val am = activity.getSystemService(Context.ALARM_SERVICE)
+        if(am is AlarmManager){
+            am.cancel(pending)
+            Toast.makeText(activity.applicationContext,"alarm is cancel",Toast.LENGTH_SHORT).show()
         }
     }
     private fun backBeforeFragment(){
