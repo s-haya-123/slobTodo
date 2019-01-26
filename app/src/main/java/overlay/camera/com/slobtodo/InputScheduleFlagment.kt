@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.EditText
@@ -24,7 +23,7 @@ import kotlinx.android.synthetic.main.input_line.view.*
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
     var data:InputData = InputData()
-    private var isAlarmOn:Boolean = true
+    private var isAlarmOn:Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -42,18 +41,18 @@ class InputScheduleFlagment: Fragment() {
             setInputDataOnInputLine(inputData)
             inputData?.let { this.data = it }
         }
-        var lineData = InputData.LineData()
-        createInputLine(lineData)
+        var lineData = InputData.LineData(this.data.lineDataArray.size)
+        addInputLineOnView(lineData)
     }
     private fun setInputDataOnInputLine(inputData: InputData?):Unit{
         inputData?.let {
             it.lineDataArray.forEach{
-                val view = this.createInputLine(it)
+                val view = this.addInputLineOnView(it)
                 view.input_text.setText(it.todo)
             }
         }
     }
-    private fun createInputLine(lineData: InputData.LineData):View{
+    private fun addInputLineOnView(lineData: InputData.LineData):View{
         return layoutInflater.inflate(R.layout.input_line, null).apply{
             if(lineData.isChecked){
                 checked_list.addView(this)
@@ -61,6 +60,7 @@ class InputScheduleFlagment: Fragment() {
                 input_list.addView(this)
             }
             setEventOnEditText(this.input_text,this,lineData)
+            this@InputScheduleFlagment.data.lineDataArray.add(lineData)
             this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
                 input_list.removeView(this)
                 lineData.isDelete = true
@@ -91,8 +91,8 @@ class InputScheduleFlagment: Fragment() {
     private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
         text.setOnKeyListener { _, keyCode, event ->
             if(keyCode == KeyEvent.KEYCODE_ENTER){
-                var lineData = InputData.LineData()
-                createInputLine(lineData)
+                var lineData = InputData.LineData(this.data.lineDataArray.size)
+                addInputLineOnView(lineData)
                 true
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
@@ -121,7 +121,6 @@ class InputScheduleFlagment: Fragment() {
                 view.findViewById<ImageButton>(R.id.clearButton).visibility = View.INVISIBLE
             }
         }
-        this.data.lineDataArray.add(lineData)
     }
 
     private fun operateSQLInputData(context:Context){
@@ -197,7 +196,8 @@ class InputScheduleFlagment: Fragment() {
                 R.id.action_notactive ->{
                     this.isAlarmOn = true
                     activity?.let {
-                        alarmStart(it)
+                        val amount = calcTimeAtWeekend()
+                        alarmStart(it,amount)
                         it.fragmentManager.invalidateOptionsMenu()
                     }
                     true
@@ -208,28 +208,46 @@ class InputScheduleFlagment: Fragment() {
             return super.onOptionsItemSelected(item)
         }
     }
-    private fun alarmStart(activity: FragmentActivity) {
-        val calendar = Calendar.getInstance()
-        calendar.setTimeInMillis(System.currentTimeMillis())
-        // 10sec
-        calendar.add(Calendar.SECOND, 10)
-        val intent = Intent(activity.applicationContext, ReminderNotification::class.java)
-        intent.putExtra("RequestCode", ReminderNotification.REMINDER_REQUESTCODE)
+    private fun calcTimeAtWeekend():Int{
+        val currentCalendar:Calendar = Calendar.getInstance()
+        val week = currentCalendar.get(Calendar.DAY_OF_WEEK)
+        val subTimeAtTommorow = calcTimeAtTommorrow(currentCalendar)
+        val wakeupSecond = 7 * 60 * 60
+        when(week){
+            Calendar.SATURDAY, Calendar.SUNDAY ->{
+                return subTimeAtTommorow + wakeupSecond
+            }
+            else -> {
+                val subTimeAtWeekend = Calendar.SATURDAY - currentCalendar.get(Calendar.DAY_OF_WEEK) -1
+                return subTimeAtTommorow + subTimeAtWeekend * 24 * 60 * 60 + wakeupSecond
+            }
+        }
+    }
+    private fun calcTimeAtTommorrow(calender:Calendar):Int{
+        val hour = calender.get(Calendar.HOUR_OF_DAY)
+        val minute = calender.get(Calendar.MINUTE)
+        val second = calender.get(Calendar.SECOND)
+        return ((24 - hour) * 60 + 60 - minute) * 60+ 60 -second
+    }
+    private fun alarmStart(activity: FragmentActivity,timerAmount:Int) {
+        val calendar = Calendar.getInstance().apply {
+            this.setTimeInMillis(System.currentTimeMillis())
+            this.add(Calendar.SECOND, timerAmount)
+        }
+        val intent = Intent(activity.applicationContext, ReminderNotification::class.java).apply {
+            this.putExtra("RequestCode", ReminderNotification.REMINDER_REQUESTCODE)
+        }
 
         val pending = PendingIntent.getBroadcast(
                 activity.applicationContext, ReminderNotification.REMINDER_REQUESTCODE, intent, 0)
-
 
         val am = activity.getSystemService(Context.ALARM_SERVICE)
 
         if (am is AlarmManager) {
             am.setExact(AlarmManager.RTC_WAKEUP,
                     calendar.getTimeInMillis(), pending)
-
-
             Toast.makeText(activity.applicationContext,
                     "alarm start", Toast.LENGTH_SHORT).show()
-
         }
     }
     private fun alarmCancel(activity: FragmentActivity){

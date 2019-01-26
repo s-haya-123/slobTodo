@@ -9,7 +9,6 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.app.PendingIntent
 import android.graphics.Color
-import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,72 +18,47 @@ class ReminderNotification: BroadcastReceiver() {
         val REMINDER_REQUESTCODE = 0
     }
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("AlarmBroadcastReceiver", "onReceive() pid=" + android.os.Process.myPid())
-
-        val requestCode = intent?.getIntExtra("RequestCode", 0)
-
-        val pendingIntent = PendingIntent.getActivity(context, requestCode!!, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-
         val channelId = "default"
-        // app name
-        val title = context?.getString(R.string.app_name)
+        val title:String? = context?.getString(R.string.app_name)
 
         val currentTime = System.currentTimeMillis()
         val dataFormat = SimpleDateFormat("HH:mm:ss", Locale.JAPAN)
         val cTime = dataFormat.format(currentTime)
 
-        // メッセージ　+ 11:22:331
         val message = "時間になりました。 $cTime"
-
         val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val notification = createNotification(context!!,intent!!,notificationManager,channelId,title!!,message)
+        notificationManager.notify(R.string.app_name, notification)
 
-        // Notification　Channel 設定
-        val channel:NotificationChannel = NotificationChannel(
+    }
+    fun createNotification(context:Context,intent:Intent,notificationManager:NotificationManager,channelId:String,title:String,message:String):Notification? {
+        val requestCode = intent.getIntExtra("RequestCode", 0)
+        val pendingIntent = PendingIntent.getActivity(context, requestCode!!, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val channel = NotificationChannel(
                 channelId, title, NotificationManager.IMPORTANCE_DEFAULT).apply {
             this.description = message
             this.enableVibration(true)
             this.canShowBadge()
             this.enableLights(true)
             this.lightColor = Color.BLUE
-            // the channel appears on the lockscreen
             this.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
             this.setSound(defaultSoundUri, null)
             this.setShowBadge(true)
         }
 
+        notificationManager.createNotificationChannel(channel)
 
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(channel)
-
-            val notification:Notification = Notification.Builder(context, channelId)
-                    .setContentTitle(title)
-                    // android標準アイコンから
-                    .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                    .setContentText(message)
-                    .setAutoCancel(true)
-                    .setContentIntent(pendingIntent)
-                    .setWhen(System.currentTimeMillis())
-                    .build()
-
-            // 通知
-            notificationManager.notify(R.string.app_name, notification)
-
-        }
+        return Notification.Builder(context, channelId)
+                .setContentTitle(title)
+                // android標準アイコンから
+                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                .setContentText(message)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setWhen(System.currentTimeMillis())
+                .build()
     }
-    private fun exampleNotification(context: Context?,intent: Intent?){
-        val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel("default",context.getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT).let {
-            it.description = "test"
-            it.enableVibration(true)
-        }
-        val notification = Notification.Builder(context,"default").let {
-            it.setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            it.setContentText("test")
-            it.build()
-        }
-        notificationManager.notify(R.string.app_name,notification)
 
-    }
 }
