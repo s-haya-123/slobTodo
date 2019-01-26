@@ -31,7 +31,7 @@ class ReminderNotification: BroadcastReceiver() {
         val notification = createNotification(context!!,intent!!,notificationManager,channelId,title!!,message)
         notificationManager.notify(R.string.app_name, notification)
 
-        }
+    }
     fun createNotification(context:Context,intent:Intent,notificationManager:NotificationManager,channelId:String,title:String,message:String):Notification? {
         val requestCode = intent.getIntExtra("RequestCode", 0)
         val pendingIntent = PendingIntent.getActivity(context, requestCode!!, intent, PendingIntent.FLAG_UPDATE_CURRENT)

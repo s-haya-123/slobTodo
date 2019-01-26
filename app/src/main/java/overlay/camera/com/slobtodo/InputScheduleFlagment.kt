@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.input_line.view.*
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
     var data:InputData = InputData()
-    private var isAlarmOn:Boolean = true
+    private var isAlarmOn:Boolean = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -196,7 +196,8 @@ class InputScheduleFlagment: Fragment() {
                 R.id.action_notactive ->{
                     this.isAlarmOn = true
                     activity?.let {
-                        alarmStart(it,10)
+                        val amount = calcTimeAtWeekend()
+                        alarmStart(it,amount)
                         it.fragmentManager.invalidateOptionsMenu()
                     }
                     true
@@ -206,6 +207,27 @@ class InputScheduleFlagment: Fragment() {
         } else {
             return super.onOptionsItemSelected(item)
         }
+    }
+    private fun calcTimeAtWeekend():Int{
+        val currentCalendar:Calendar = Calendar.getInstance()
+        val week = currentCalendar.get(Calendar.DAY_OF_WEEK)
+        val subTimeAtTommorow = calcTimeAtTommorrow(currentCalendar)
+        val wakeupSecond = 7 * 60 * 60
+        when(week){
+            Calendar.SATURDAY, Calendar.SUNDAY ->{
+                return subTimeAtTommorow + wakeupSecond
+            }
+            else -> {
+                val subTimeAtWeekend = Calendar.SATURDAY - currentCalendar.get(Calendar.DAY_OF_WEEK) -1
+                return subTimeAtTommorow + subTimeAtWeekend * 24 * 60 * 60 + wakeupSecond
+            }
+        }
+    }
+    private fun calcTimeAtTommorrow(calender:Calendar):Int{
+        val hour = calender.get(Calendar.HOUR_OF_DAY)
+        val minute = calender.get(Calendar.MINUTE)
+        val second = calender.get(Calendar.SECOND)
+        return ((24 - hour) * 60 + 60 - minute) * 60+ 60 -second
     }
     private fun alarmStart(activity: FragmentActivity,timerAmount:Int) {
         val calendar = Calendar.getInstance().apply {
