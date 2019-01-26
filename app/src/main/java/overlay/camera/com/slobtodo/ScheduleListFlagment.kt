@@ -7,8 +7,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
-import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +28,6 @@ class ScheduleListFlagment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val _activity = activity
         if(_activity is MainActivity){
-//            _activity.inputDataList = alreadyExistinputData!!
 
             val result = selectInputDataFromDB()?.let {
                 return@let it.withIndex().groupBy{ it.index / 2 }.map{ it.value.map{ it.value } }
@@ -42,7 +39,6 @@ class ScheduleListFlagment: Fragment() {
             fab.setOnClickListener { _ ->
                 if(savedInstanceState == null){
                     val inputData = InputData()
-//                    _activity.inputDataList += inputData
                     changeMainFragment(inputData)
                 }
             }

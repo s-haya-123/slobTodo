@@ -1,8 +1,6 @@
 package overlay.camera.com.slobtodo
 
-import android.text.format.DateFormat
 import java.io.Serializable
-import java.util.*
 
 class InputData: Serializable {
     class LineData(var index:Int):Serializable{
