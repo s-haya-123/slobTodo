@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentTransaction
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.EditText
@@ -38,33 +39,17 @@ class InputScheduleFlagment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        title.let {
-            it.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                }
-
-                override fun onTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                    data.title = s.toString()
-                }
-
-                override fun afterTextChanged(s: Editable?) {
-                }
-            })
-            it.setOnKeyListener { _, keyCode, event ->
-                if(keyCode == KeyEvent.KEYCODE_ENTER){
-                    var lineData = InputData.LineData(this.data.lineDataArray.size)
-                    addInputLineOnView(lineData)
-                    true
-                }
-                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                    context?.let {
-                        operateSQLInputData(it)
-                    }
-                    true
-                }
-                false
+        setEventOnEditText(title,object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
             }
-        }
+
+            override fun onTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                data.title = s.toString()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
         arguments?.let {
             val inputData = it.getSerializable(InputScheduleFlagment.ARG) as? InputData
             setInputDataOnInputLine(inputData)
@@ -76,7 +61,7 @@ class InputScheduleFlagment: Fragment() {
         var lineData = InputData.LineData(this.data.lineDataArray.size)
         addInputLineOnView(lineData)
     }
-    private fun setInputDataOnInputLine(inputData: InputData?):Unit{
+    private fun setInputDataOnInputLine(inputData: InputData?){
         inputData?.let {
             it.lineDataArray.forEach{
                 val view = this.addInputLineOnView(it)
@@ -91,7 +76,25 @@ class InputScheduleFlagment: Fragment() {
             } else {
                 input_list.addView(this)
             }
-            setEventOnEditText(this.input_text,this,lineData)
+            setEventOnEditText(this.input_text,object :TextWatcher{
+                override fun beforeTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
+                }
+
+                override fun onTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
+
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                    lineData.todo = s.toString()
+                }
+            })
+            this.input_text.setOnFocusChangeListener{_, hasFocus ->
+                if(hasFocus){
+                    this.findViewById<ImageButton>(R.id.clearButton).visibility = View.VISIBLE
+                } else {
+                    this.findViewById<ImageButton>(R.id.clearButton).visibility = View.INVISIBLE
+                }
+            }
             this@InputScheduleFlagment.data.lineDataArray.add(lineData)
             this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
                 input_list.removeView(this)
@@ -120,13 +123,12 @@ class InputScheduleFlagment: Fragment() {
                 }
             }
         }
-    }
-
-    private fun setEventOnEditText(text:EditText,view: View,lineData:InputData.LineData):Unit{
+    }private fun setEventOnEditText(text:EditText,textWatcher: TextWatcher):Unit{
         text.setOnKeyListener { _, keyCode, event ->
-            if(keyCode == KeyEvent.KEYCODE_ENTER){
+            if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER){
                 var lineData = InputData.LineData(this.data.lineDataArray.size)
                 addInputLineOnView(lineData)
+                text.setText(text.text.replace("\n".toRegex(),""))
                 true
             }
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
@@ -137,24 +139,7 @@ class InputScheduleFlagment: Fragment() {
             }
             false
         }
-        text.addTextChangedListener(object :TextWatcher{
-            override fun beforeTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
-            }
-
-            override fun onTextChanged(s:CharSequence,  start:Int, count:Int, after:Int) {
-                lineData.todo = s.toString()
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
-        text.setOnFocusChangeListener{_, hasFocus ->
-            if(hasFocus){
-                view.findViewById<ImageButton>(R.id.clearButton).visibility = View.VISIBLE
-            } else {
-                view.findViewById<ImageButton>(R.id.clearButton).visibility = View.INVISIBLE
-            }
-        }
+        text.addTextChangedListener(textWatcher)
     }
 
     private fun operateSQLInputData(context:Context){
