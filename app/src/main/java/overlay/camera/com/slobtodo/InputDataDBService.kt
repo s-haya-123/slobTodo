@@ -103,8 +103,8 @@ class InputDataDBService(val context: Context,val version:Int){
 
     fun insertLine(lineData:InputData.LineData,inputId:Long){
         val tableName = "line_data"
-        val argString = "(ischecked,todo,inputDataId,_index,created_time,updated_time)"
-        val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?,?,?,?)")
+        val argString = "(ischecked,todo,inputDataId,_index,doneTime,created_time,updated_time)"
+        val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?,?,?,?,?)")
 
         db?.beginTransaction();
         val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
@@ -114,8 +114,13 @@ class InputDataDBService(val context: Context,val version:Int){
             it.bindString(2,lineData.todo)
             it.bindLong(3,inputId)
             it.bindLong(4,lineData.index.toLong())
-            it.bindString(5,currentDate)
+            if(lineData.doneTime == null){
+                it.bindNull( 5)
+            } else {
+                it.bindString( 5,lineData.doneTime)
+            }
             it.bindString(6,currentDate)
+            it.bindString(7,currentDate)
         }
         val id =statement?.executeInsert()
         db?.setTransactionSuccessful()
@@ -130,8 +135,8 @@ class InputDataDBService(val context: Context,val version:Int){
     }
 
     fun insertLineDataList(lineDataList: List<InputData.LineData>, inputId:Long): LongRange? {
-        val argNum = 6
-        val sql = createSqlQuery(lineDataList,"line_data","(ischecked,todo,inputDataId,_index,created_time,updated_time)",argNum)
+        val argNum = 7
+        val sql = createSqlQuery(lineDataList,"line_data","(ischecked,todo,inputDataId,_index,doneTime,created_time,updated_time)",argNum)
         db?.beginTransaction();
         val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
         val currentDate = getCurrentData()
@@ -142,8 +147,13 @@ class InputDataDBService(val context: Context,val version:Int){
                 it.bindString(argNum * index + 2,lineData.todo)
                 it.bindLong(argNum * index + 3,inputId)
                 it.bindLong(argNum * index + 4,lineData.index.toLong())
-                it.bindString(argNum * index + 5,currentDate)
+                if(lineData.doneTime == null){
+                    it.bindNull(argNum * index + 5)
+                } else {
+                    it.bindString(argNum * index + 5,lineData.doneTime)
+                }
                 it.bindString(argNum * index + 6,currentDate)
+                it.bindString(argNum * index + 7,currentDate)
             }
         }
         val lastId = statement?.executeInsert()

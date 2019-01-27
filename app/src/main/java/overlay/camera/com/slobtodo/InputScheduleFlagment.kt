@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.view.*
 import android.widget.CheckBox
 import android.widget.EditText
@@ -19,6 +20,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import kotlinx.android.synthetic.main.input_layout.*
 import kotlinx.android.synthetic.main.input_line.view.*
+import java.util.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
@@ -70,16 +72,18 @@ class InputScheduleFlagment: Fragment() {
                 it.jumpDrawablesToCurrentState()
                 it.setOnClickListener { _->
 
-                    lineData.isChecked = when(it.isChecked){
+                    when(it.isChecked){
                         true -> {
                             input_list.removeView(this)
                             checked_list.addView(this)
-                            true
+                            lineData.isChecked = true
+                            lineData.doneTime =  DateFormat.format("yyyy-MM-ddTHH:mm:ss+09:00", Date()).toString()
                         }
                         false -> {
                             checked_list.removeView(this)
                             input_list.addView(this)
-                            false
+                            lineData.isChecked = false
+                            lineData.doneTime = null
                         }
                     }
 
@@ -214,7 +218,7 @@ class InputScheduleFlagment: Fragment() {
         val subTimeAtTommorow = calcTimeAtTommorrow(currentCalendar)
         val wakeupSecond = 7 * 60 * 60
         when(week){
-            Calendar.SATURDAY, Calendar.SUNDAY ->{
+            Calendar.SATURDAY ->{
                 return subTimeAtTommorow + wakeupSecond
             }
             else -> {
