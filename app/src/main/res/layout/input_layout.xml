@@ -36,6 +36,19 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0">
 
+            <EditText
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:inputType="textMultiLine"
+                android:hint="タイトル"
+                android:textSize="20dp">
+
+            </EditText>
+
             <LinearLayout
                 android:id="@+id/input_list"
                 android:layout_width="match_parent"

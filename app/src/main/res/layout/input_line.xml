@@ -16,12 +16,12 @@
     <EditText
         android:id="@+id/input_text"
         android:layout_width="298dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:inputType="text">
-
+        android:inputType="textMultiLine"
+        android:textSize="15dp">
         <requestFocus />
     </EditText>
 

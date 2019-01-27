@@ -8,11 +8,13 @@ class InputData: Serializable {
         var todo:String
         var id:Long?
         var isDelete:Boolean
+        var doneTime:String?
         init {
             isChecked = false
             todo = ""
             id = null
             isDelete = false
+            doneTime = null
         }
     }
     var title = ""
