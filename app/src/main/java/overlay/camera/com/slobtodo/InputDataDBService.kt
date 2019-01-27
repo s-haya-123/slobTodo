@@ -101,6 +101,14 @@ class InputDataDBService(val context: Context,val version:Int){
         db?.update("line_data", cv, "_id = ${lineData.id}", null)
     }
 
+    fun updateInputData(inputData: InputData){
+        val currentDate = getCurrentData()
+        val cv = ContentValues()
+        cv.put("title", inputData.title)
+        cv.put("updated_time",currentDate)
+        db?.update("input_data", cv, "_id = ${inputData.id}", null)
+    }
+
     fun insertLine(lineData:InputData.LineData,inputId:Long){
         val tableName = "line_data"
         val argString = "(ischecked,todo,inputDataId,_index,doneTime,created_time,updated_time)"

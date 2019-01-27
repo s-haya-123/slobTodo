@@ -38,10 +38,40 @@ class InputScheduleFlagment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        title.let {
+            it.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                }
+
+                override fun onTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                    data.title = s.toString()
+                }
+
+                override fun afterTextChanged(s: Editable?) {
+                }
+            })
+            it.setOnKeyListener { _, keyCode, event ->
+                if(keyCode == KeyEvent.KEYCODE_ENTER){
+                    var lineData = InputData.LineData(this.data.lineDataArray.size)
+                    addInputLineOnView(lineData)
+                    true
+                }
+                if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+                    context?.let {
+                        operateSQLInputData(it)
+                    }
+                    true
+                }
+                false
+            }
+        }
         arguments?.let {
             val inputData = it.getSerializable(InputScheduleFlagment.ARG) as? InputData
             setInputDataOnInputLine(inputData)
-            inputData?.let { this.data = it }
+            inputData?.let {
+                title.setText(it.title)
+                this.data = it
+            }
         }
         var lineData = InputData.LineData(this.data.lineDataArray.size)
         addInputLineOnView(lineData)
@@ -133,6 +163,7 @@ class InputScheduleFlagment: Fragment() {
         if(data.id == null){
             insertNewInputData(dbService,data)
         } else {
+            dbService.updateInputData(data)
             updateAlreadyExistInputData(dbService,data)
         }
         dbService.close()
