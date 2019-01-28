@@ -66,6 +66,7 @@ class ScheduleListFlagment: Fragment() {
                     card.setOnClickListener {
                         changeMainFragment(inputData)
                     }
+                    card.findViewById<TextView>(R.id.cardTitle).text = inputData.title
                     this.addView(card) }
             }
         }
