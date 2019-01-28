@@ -99,31 +99,43 @@ class InputScheduleFlagment: Fragment() {
             this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
                 input_list.removeView(this)
                 lineData.isDelete = true
+                data.lineDataArray.filter { !it.isDelete }.forEachIndexed { index, lineData ->
+                    lineData.index = index
+                }
+                if(input_list.childCount == 0){
+                    return@setOnClickListener
+                }
+                if(lineData.index == input_list.childCount){
+                    input_list.getChildAt(lineData.index-1).requestFocus()
+                } else {
+                    input_list.getChildAt(lineData.index).requestFocus()
+                }
             }
-            this.findViewById<CheckBox>(R.id.checkBox).let{
-                it.isChecked = lineData.isChecked
-                it.jumpDrawablesToCurrentState()
-                it.setOnClickListener { _->
+            setEventOnCheckbox(this,this.findViewById<CheckBox>(R.id.checkBox),lineData)
+        }
+    }
+    private fun setEventOnCheckbox(view:View,checkBox: CheckBox,lineData: InputData.LineData){
+        checkBox.isChecked = lineData.isChecked
+        checkBox.jumpDrawablesToCurrentState()
+        checkBox.setOnClickListener { _->
 
-                    when(it.isChecked){
-                        true -> {
-                            input_list.removeView(this)
-                            checked_list.addView(this)
-                            lineData.isChecked = true
-                            lineData.doneTime =  DateFormat.format("yyyy-MM-ddTHH:mm:ss+09:00", Date()).toString()
-                        }
-                        false -> {
-                            checked_list.removeView(this)
-                            input_list.addView(this)
-                            lineData.isChecked = false
-                            lineData.doneTime = null
-                        }
-                    }
-
+            when(checkBox.isChecked){
+                true -> {
+                    input_list.removeView(view)
+                    checked_list.addView(view)
+                    lineData.isChecked = true
+                    lineData.doneTime =  DateFormat.format("yyyy-MM-ddTHH:mm:ss+09:00", Date()).toString()
+                }
+                false -> {
+                    checked_list.removeView(view)
+                    input_list.addView(view)
+                    lineData.isChecked = false
+                    lineData.doneTime = null
                 }
             }
         }
-    }private fun setEventOnEditText(text:EditText,textWatcher: TextWatcher):Unit{
+    }
+    private fun setEventOnEditText(text:EditText,textWatcher: TextWatcher):Unit{
         text.setOnKeyListener { _, keyCode, event ->
             if(event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_ENTER){
                 var lineData = InputData.LineData(this.data.lineDataArray.size)
@@ -198,7 +210,6 @@ class InputScheduleFlagment: Fragment() {
         if (item != null){
             return when (item.itemId) {
                 android.R.id.home ->{
-//                    addInputDataOnActivity()
                     context?.let {
                         operateSQLInputData(it)
                     }
