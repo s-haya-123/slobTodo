@@ -99,6 +99,14 @@ class InputScheduleFlagment: Fragment() {
             this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
                 input_list.removeView(this)
                 lineData.isDelete = true
+                data.lineDataArray.filter { !it.isDelete }.forEachIndexed { index, lineData ->
+                    lineData.index = index
+                }
+                if(lineData.index == input_list.childCount){
+                    input_list.getChildAt(lineData.index-1).requestFocus()
+                } else {
+                    input_list.getChildAt(lineData.index).requestFocus()
+                }
             }
             setEventOnCheckbox(this,this.findViewById<CheckBox>(R.id.checkBox),lineData)
         }
