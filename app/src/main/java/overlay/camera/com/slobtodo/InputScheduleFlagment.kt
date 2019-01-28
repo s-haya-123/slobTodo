@@ -102,6 +102,9 @@ class InputScheduleFlagment: Fragment() {
                 data.lineDataArray.filter { !it.isDelete }.forEachIndexed { index, lineData ->
                     lineData.index = index
                 }
+                if(input_list.childCount == 0){
+                    return@setOnClickListener
+                }
                 if(lineData.index == input_list.childCount){
                     input_list.getChildAt(lineData.index-1).requestFocus()
                 } else {
