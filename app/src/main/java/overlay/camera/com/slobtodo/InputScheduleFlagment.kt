@@ -58,7 +58,7 @@ class InputScheduleFlagment: Fragment() {
                 this.data = it
             }
         }
-        if(this.data == null){
+        if(this.data.id == null){
             insertNewInputData(this.data)
         }
         var lineData = InputData.LineData(this.data.lineDataArray.size)
@@ -167,6 +167,7 @@ class InputScheduleFlagment: Fragment() {
     private fun insertNewInputData(inputData: InputData){
         context?.let {
             val dbService:InputDataDBService = InputDataDBService(it,2)
+            dbService.open()
             dbService.insertInputData(inputData)?.apply {
                 inputData.id  = this
             }
@@ -259,17 +260,23 @@ class InputScheduleFlagment: Fragment() {
         val second = calender.get(Calendar.SECOND)
         return ((24 - hour) * 60 + 60 - minute) * 60+ 60 -second
     }
+    private fun getAlarmCode(inputData: InputData):Int{
+        return when(inputData.id){
+            null -> ReminderNotification.REMINDER_REQUESTCODE
+            else -> ReminderNotification.REMINDER_REQUESTCODE +inputData.id!!.toInt()
+        }
+    }
     private fun alarmStart(activity: FragmentActivity,timerAmount:Int) {
         val calendar = Calendar.getInstance().apply {
             this.setTimeInMillis(System.currentTimeMillis())
             this.add(Calendar.SECOND, timerAmount)
         }
         val intent = Intent(activity.applicationContext, ReminderNotification::class.java).apply {
-            this.putExtra("RequestCode", ReminderNotification.REMINDER_REQUESTCODE)
+            this.putExtra("RequestCode", getAlarmCode(this@InputScheduleFlagment.data))
         }
 
         val pending = PendingIntent.getBroadcast(
-                activity.applicationContext, ReminderNotification.REMINDER_REQUESTCODE, intent, 0)
+                activity.applicationContext,getAlarmCode(this.data), intent, 0)
 
         val am = activity.getSystemService(Context.ALARM_SERVICE)
 
