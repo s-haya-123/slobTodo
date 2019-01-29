@@ -58,6 +58,9 @@ class InputScheduleFlagment: Fragment() {
                 this.data = it
             }
         }
+        if(this.data == null){
+            insertNewInputData(this.data)
+        }
         var lineData = InputData.LineData(this.data.lineDataArray.size)
         addInputLineOnView(lineData)
     }
@@ -157,21 +160,17 @@ class InputScheduleFlagment: Fragment() {
     private fun operateSQLInputData(context:Context){
         val dbService:InputDataDBService = InputDataDBService(context,2)
         dbService.open()
-        if(data.id == null){
-            insertNewInputData(dbService,data)
-        } else {
-            dbService.updateInputData(data)
-            updateAlreadyExistInputData(dbService,data)
-        }
+        dbService.updateInputData(data)
+        updateAlreadyExistInputData(dbService,data)
         dbService.close()
     }
-    private fun insertNewInputData(dbService:InputDataDBService,inputData: InputData){
-        dbService.insertInputData(inputData)?.let {
-            inputData.id  = it
-            val idRange = dbService.insertLineDataList(inputData.lineDataArray,it)
-            inputData.lineDataArray.filter { !it.isDelete }.forEachIndexed { index, lineData ->
-                lineData.id = idRange?.elementAt(index)
+    private fun insertNewInputData(inputData: InputData){
+        context?.let {
+            val dbService:InputDataDBService = InputDataDBService(it,2)
+            dbService.insertInputData(inputData)?.apply {
+                inputData.id  = this
             }
+            dbService.close()
         }
     }
     private fun updateAlreadyExistInputData(dbService:InputDataDBService,inputData: InputData){
