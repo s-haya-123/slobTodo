@@ -25,8 +25,7 @@ import java.util.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
-    var data:InputData = InputData()
-    private var isAlarmOn:Boolean = false
+    var data:InputData = InputData(false)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -193,7 +192,7 @@ class InputScheduleFlagment: Fragment() {
         if(menuInflater != null && menu != null){
             menuInflater.inflate(R.menu.input, menu)
 
-            when(this.isAlarmOn){
+            when(this.data.isAlarmOn){
                 true -> {
                     menu.findItem(R.id.action_activate).isVisible = true
                     menu.findItem(R.id.action_notactive).isVisible = false
@@ -217,7 +216,7 @@ class InputScheduleFlagment: Fragment() {
                     true
                 }
                 R.id.action_activate ->{
-                    this.isAlarmOn = false
+                    this.data.isAlarmOn = false
                     activity?.let {
                         alarmCancel(it)
                         it.fragmentManager.invalidateOptionsMenu()
@@ -225,7 +224,7 @@ class InputScheduleFlagment: Fragment() {
                     true
                 }
                 R.id.action_notactive ->{
-                    this.isAlarmOn = true
+                    this.data.isAlarmOn = true
                     activity?.let {
                         val amount = calcTimeAtWeekend()
                         alarmStart(it,amount)

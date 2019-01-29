@@ -14,6 +14,9 @@ class InputDataDBService(val context: Context,val version:Int){
     fun InputData.LineData.isChecktoLong():Long{
         return if(this.isChecked) 0 else 1
     }
+    fun InputData.isAlarmOntoLong():Long{
+        return if(this.isAlarmOn) 0 else 1
+    }
     private var dbHelper:InputDataDBHelper
     private var db: SQLiteDatabase? = null
     init {
@@ -32,11 +35,12 @@ class InputDataDBService(val context: Context,val version:Int){
         val inputDataList = arrayListOf<InputData>()
         db?.beginTransaction()
 
-        val cursor = db?.query(tableName, arrayOf("_id","title"), null, null, null, null, null)
+        val cursor = db?.query(tableName, arrayOf("_id","title","isAlarmOn"), null, null, null, null, null)
         cursor?.let {
             var isEof = it.moveToFirst()
             while (isEof) {
-                var inputData = InputData()
+                val isAlarmOn = if(cursor.getLong(cursor.getColumnIndex("isAlarmOn")) > 0) false else true
+                var inputData = InputData(isAlarmOn)
                 inputData.id = cursor.getLong(cursor.getColumnIndex("_id"))
                 inputData.title = cursor.getString(cursor.getColumnIndex("title"))
                 inputData.lineDataArray = selectLineData(inputData.id)
@@ -73,15 +77,16 @@ class InputDataDBService(val context: Context,val version:Int){
     }
     fun insertInputData(inputData:InputData):Long?{
         val tableName = "input_data"
-        val argString = "(title,created_time,updated_time)"
-        val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?)")
+        val argString = "(title,isAlarmOn,created_time,updated_time)"
+        val sql = StringBuilder("INSERT INTO ${tableName} ${argString} VALUES (?,?,?,?)")
         db?.beginTransaction()
         val statement:SQLiteStatement? = db?.compileStatement(sql.toString())
         val currentDate = getCurrentData()
         statement?.let {
             it.bindString(1,inputData.title)
-            it.bindString(2,currentDate)
+            it.bindLong(2,inputData.isAlarmOntoLong())
             it.bindString(3,currentDate)
+            it.bindString(4,currentDate)
         }
         val id =statement?.executeInsert()
         db?.setTransactionSuccessful()
@@ -105,6 +110,7 @@ class InputDataDBService(val context: Context,val version:Int){
         val currentDate = getCurrentData()
         val cv = ContentValues()
         cv.put("title", inputData.title)
+        cv.put("isAlarmOn",inputData.isAlarmOntoLong())
         cv.put("updated_time",currentDate)
         db?.update("input_data", cv, "_id = ${inputData.id}", null)
     }
