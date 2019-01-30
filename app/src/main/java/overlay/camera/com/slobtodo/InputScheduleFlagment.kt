@@ -25,7 +25,7 @@ import java.util.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
-    var data:InputData = InputData(false)
+    var data:InputData = InputData(InputData.Alarm.OFF)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -192,15 +192,24 @@ class InputScheduleFlagment: Fragment() {
         if(menuInflater != null && menu != null){
             menuInflater.inflate(R.menu.input, menu)
 
-            when(this.data.isAlarmOn){
-                true -> {
+            when(this.data.alarm){
+                InputData.Alarm.ON -> {
                     menu.findItem(R.id.action_activate).isVisible = true
                     menu.findItem(R.id.action_notactive).isVisible = false
+                    menu.findItem(R.id.action_important).isVisible = false
                 }
-                false -> {
+                InputData.Alarm.OFF -> {
                     menu.findItem(R.id.action_activate).isVisible = false
                     menu.findItem(R.id.action_notactive).isVisible = true
+                    menu.findItem(R.id.action_important).isVisible = false
                 }
+                InputData.Alarm.IMPORTANT_ON ->{
+                    menu.findItem(R.id.action_activate).isVisible = false
+                    menu.findItem(R.id.action_notactive).isVisible = false
+                    menu.findItem(R.id.action_important).isVisible = true
+                }
+
+
             }
         }
     }
@@ -216,18 +225,28 @@ class InputScheduleFlagment: Fragment() {
                     true
                 }
                 R.id.action_activate ->{
-                    this.data.isAlarmOn = false
+                    //set next icon
+                    this.data.alarm = InputData.Alarm.IMPORTANT_ON
                     activity?.let {
-                        alarmCancel(it)
+                        val amount = calcTimeAtTommorrow()+ ReminderNotification.WAKEUP_TIME * 60 * 60
+                        alarmStart(it,amount,"明日実行！")
                         it.fragmentManager.invalidateOptionsMenu()
                     }
                     true
                 }
                 R.id.action_notactive ->{
-                    this.data.isAlarmOn = true
+                    this.data.alarm = InputData.Alarm.ON
                     activity?.let {
                         val amount = calcTimeAtWeekend()
-                        alarmStart(it,amount)
+                        alarmStart(it,amount,"週末にタイマーをセットしたよ～")
+                        it.fragmentManager.invalidateOptionsMenu()
+                    }
+                    true
+                }
+                R.id.action_important ->{
+                    this.data.alarm = InputData.Alarm.OFF
+                    activity?.let {
+                        alarmCancel(it)
                         it.fragmentManager.invalidateOptionsMenu()
                     }
                     true
@@ -242,7 +261,7 @@ class InputScheduleFlagment: Fragment() {
         val currentCalendar:Calendar = Calendar.getInstance()
         val week = currentCalendar.get(Calendar.DAY_OF_WEEK)
         val subTimeAtTommorow = calcTimeAtTommorrow(currentCalendar)
-        val wakeupSecond = 7 * 60 * 60
+        val wakeupSecond = ReminderNotification.WAKEUP_TIME * 60 * 60
         when(week){
             Calendar.SATURDAY ->{
                 return subTimeAtTommorow + wakeupSecond
@@ -257,7 +276,14 @@ class InputScheduleFlagment: Fragment() {
         val hour = calender.get(Calendar.HOUR_OF_DAY)
         val minute = calender.get(Calendar.MINUTE)
         val second = calender.get(Calendar.SECOND)
-        return ((24 - hour) * 60 + 60 - minute) * 60+ 60 -second
+        return ((23 - hour) * 60 + 60 - minute -1) * 60+ 60 -second
+    }
+    private fun calcTimeAtTommorrow():Int{
+        val calender:Calendar = Calendar.getInstance()
+        val hour = calender.get(Calendar.HOUR_OF_DAY)
+        val minute = calender.get(Calendar.MINUTE)
+        val second = calender.get(Calendar.SECOND)
+        return ((23 - hour) * 60 + 60 - minute -1) * 60+ 60 -second
     }
     private fun getAlarmCode(inputData: InputData):Int{
         return when(inputData.id){
@@ -265,7 +291,7 @@ class InputScheduleFlagment: Fragment() {
             else -> ReminderNotification.REMINDER_REQUESTCODE +inputData.id!!.toInt()
         }
     }
-    private fun alarmStart(activity: FragmentActivity,timerAmount:Int) {
+    private fun alarmStart(activity: FragmentActivity,timerAmount:Int,text:String) {
         val calendar = Calendar.getInstance().apply {
             this.setTimeInMillis(System.currentTimeMillis())
             this.add(Calendar.SECOND, timerAmount)
@@ -283,7 +309,7 @@ class InputScheduleFlagment: Fragment() {
             am.setExact(AlarmManager.RTC_WAKEUP,
                     calendar.getTimeInMillis(), pending)
             Toast.makeText(activity.applicationContext,
-                    "alarm start", Toast.LENGTH_SHORT).show()
+                    text, Toast.LENGTH_SHORT).show()
         }
     }
     private fun alarmCancel(activity: FragmentActivity){

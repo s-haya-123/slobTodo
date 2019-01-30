@@ -2,7 +2,12 @@ package overlay.camera.com.slobtodo
 
 import java.io.Serializable
 
-class InputData(var isAlarmOn:Boolean): Serializable {
+class InputData(var alarm:Alarm): Serializable {
+    enum class Alarm(val rawValue :Int) {
+        ON(0),
+        OFF(1),
+        IMPORTANT_ON(2)
+    }
     class LineData(var index:Int):Serializable{
         var isChecked:Boolean
         var todo:String

@@ -16,6 +16,7 @@ import java.util.*
 class ReminderNotification: BroadcastReceiver() {
     companion object {
         val REMINDER_REQUESTCODE = 0
+        val WAKEUP_TIME = 7
     }
     override fun onReceive(context: Context?, intent: Intent?) {
         val channelId = "default"
