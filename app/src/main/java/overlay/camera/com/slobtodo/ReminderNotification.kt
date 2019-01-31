@@ -22,20 +22,19 @@ class ReminderNotification: BroadcastReceiver() {
         val channelId = "default"
         val title:String? = context?.getString(R.string.app_name)
 
-        val currentTime = System.currentTimeMillis()
-        val dataFormat = SimpleDateFormat("HH:mm:ss", Locale.JAPAN)
-        val cTime = dataFormat.format(currentTime)
-
-        val message = "時間になりました。 $cTime"
+        val message = "今日やることがあるよ！"
         val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val notification = createNotification(context!!,intent!!,notificationManager,channelId,title!!,message)
         notificationManager.notify(R.string.app_name, notification)
 
     }
-    fun createNotification(context:Context,intent:Intent,notificationManager:NotificationManager,channelId:String,title:String,message:String):Notification? {
+    fun createNotification(context:Context,intent: Intent,notificationManager:NotificationManager,channelId:String,title:String,message:String):Notification? {
         val requestCode = intent.getIntExtra("RequestCode", 0)
-        val pendingIntent = PendingIntent.getActivity(context, requestCode!!, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val notificationIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(context, requestCode!!, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val channel = NotificationChannel(
                 channelId, title, NotificationManager.IMPORTANCE_DEFAULT).apply {
