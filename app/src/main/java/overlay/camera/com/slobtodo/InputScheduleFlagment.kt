@@ -99,19 +99,19 @@ class InputScheduleFlagment: Fragment() {
             }
             this@InputScheduleFlagment.data.lineDataArray.add(lineData)
             this.findViewById<ImageButton>(R.id.clearButton).setOnClickListener { _ ->
-                input_list.removeView(this)
-                lineData.isDelete = true
-                data.lineDataArray.filter { !it.isDelete }.forEachIndexed { index, lineData ->
+                data.lineDataArray.filter { !it.isDelete && !it.isChecked }.forEachIndexed { index, lineData ->
                     lineData.index = index
                 }
                 if(input_list.childCount == 0){
                     return@setOnClickListener
                 }
-                if(lineData.index == input_list.childCount){
+                if(lineData.index == input_list.childCount-1){
                     input_list.getChildAt(lineData.index-1).requestFocus()
                 } else {
-                    input_list.getChildAt(lineData.index).requestFocus()
+                    input_list.getChildAt(lineData.index+1).requestFocus()
                 }
+                input_list.removeView(this)
+                lineData.isDelete = true
             }
             setEventOnCheckbox(this,this.findViewById<CheckBox>(R.id.checkBox),lineData)
         }
