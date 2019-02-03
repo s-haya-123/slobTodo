@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
 
@@ -28,13 +27,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        Log.d("dispatchKey",event.toString())
         return super.dispatchKeyEvent(event)
     }
 

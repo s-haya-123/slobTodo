@@ -9,8 +9,6 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.app.PendingIntent
 import android.graphics.Color
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class ReminderNotification: BroadcastReceiver() {

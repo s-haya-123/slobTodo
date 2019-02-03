@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentTransaction
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.EditText
@@ -60,8 +59,10 @@ class InputScheduleFlagment: Fragment() {
         if(this.data.id == null){
             insertNewInputData(this.data)
         }
-        var lineData = InputData.LineData(this.data.lineDataArray.size)
-        addInputLineOnView(lineData)
+        InputData.LineData(this.data.lineDataArray.size).let {
+            addInputLineOnView(it)
+        }
+
     }
     private fun setInputDataOnInputLine(inputData: InputData?){
         inputData?.let {
@@ -306,7 +307,7 @@ class InputScheduleFlagment: Fragment() {
         val am = activity.getSystemService(Context.ALARM_SERVICE)
 
         if (am is AlarmManager) {
-            am.setExact(AlarmManager.RTC_WAKEUP,
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP,
                     calendar.getTimeInMillis(), pending)
             Toast.makeText(activity.applicationContext,
                     text, Toast.LENGTH_SHORT).show()
