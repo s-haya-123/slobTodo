@@ -24,7 +24,7 @@ import java.util.*
 
 class InputScheduleFlagment: Fragment() {
     val ARG:String = "INPUT_DATA"
-    var data:InputData = InputData(InputData.Alarm.OFF)
+    var data:InputData = InputData(InputData.Alarm.OFF,InputData.AlarmTime.MORNIG)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -204,13 +204,21 @@ class InputScheduleFlagment: Fragment() {
                     menu.findItem(R.id.action_notactive).isVisible = true
                     menu.findItem(R.id.action_important).isVisible = false
                 }
-                InputData.Alarm.IMPORTANT_ON ->{
+                InputData.Alarm.IMPORTANT ->{
                     menu.findItem(R.id.action_activate).isVisible = false
                     menu.findItem(R.id.action_notactive).isVisible = false
                     menu.findItem(R.id.action_important).isVisible = true
                 }
-
-
+            }
+            when(this.data.alarmTime){
+                InputData.AlarmTime.MORNIG->{
+                    menu.findItem(R.id.evening).isVisible = false
+                    menu.findItem(R.id.morning).isVisible = true
+                }
+                InputData.AlarmTime.EVENING ->{
+                    menu.findItem(R.id.evening).isVisible = true
+                    menu.findItem(R.id.morning).isVisible = false
+                }
             }
         }
     }
@@ -225,9 +233,23 @@ class InputScheduleFlagment: Fragment() {
                     backBeforeFragment()
                     true
                 }
+                R.id.morning ->{
+                    this.data.alarmTime = InputData.AlarmTime.EVENING
+                    activity?.let {
+                        it.fragmentManager.invalidateOptionsMenu()
+                    }
+                    true
+                }
+                R.id.evening ->{
+                    this.data.alarmTime = InputData.AlarmTime.MORNIG
+                    activity?.let {
+                        it.fragmentManager.invalidateOptionsMenu()
+                    }
+                    true
+                }
                 R.id.action_activate ->{
                     //set next icon
-                    this.data.alarm = InputData.Alarm.IMPORTANT_ON
+                    this.data.alarm = InputData.Alarm.IMPORTANT
                     activity?.let {
                         val amount = calcTimeAtTommorrow()+ ReminderNotification.WAKEUP_TIME * 60 * 60
                         alarmStart(it,amount,"明日実行！")

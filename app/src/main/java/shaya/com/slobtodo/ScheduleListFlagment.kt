@@ -38,7 +38,7 @@ class ScheduleListFlagment: Fragment() {
             }
             fab.setOnClickListener { _ ->
                 if(savedInstanceState == null){
-                    val inputData = InputData(InputData.Alarm.OFF)
+                    val inputData = InputData(InputData.Alarm.OFF,InputData.AlarmTime.MORNIG)
                     changeMainFragment(inputData)
                 }
             }
