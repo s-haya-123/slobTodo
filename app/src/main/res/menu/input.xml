@@ -6,6 +6,20 @@
 
     <!-- "Mark Favorite", should appear as action button if possible -->
     <item
+        android:id="@+id/morning"
+        android:icon="@drawable/ic_brightness_5_black_24dp"
+        android:title="@string/cast"
+        android:visible="true"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/evening"
+        android:icon="@drawable/ic_brightness_2_black_24dp"
+        android:title="@string/cast"
+        android:visible="true"
+        app:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_notactive"
         android:icon="@drawable/ic_notifications_off_black_28dp"
         android:title="@string/cast"
